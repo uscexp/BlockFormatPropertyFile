@@ -1,4 +1,4 @@
 BlockFormatPropertyFile
 =======================
 
-Property file format in java style block format.
+Property file in java style block format.
