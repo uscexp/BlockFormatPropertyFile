@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.junit.Test;
 
+import com.github.fge.grappa.exceptions.InvalidGrammarException;
 import com.github.uscexp.blockformatpropertyfile.PropertyFile;
 import com.github.uscexp.blockformatpropertyfile.exception.PropertyFileException;
 
@@ -38,7 +39,7 @@ public class PropertyFileInterpreterTest {
 		PropertyFileInterpreter.getInstance().execute(input, propertyFile);
 	}
 
-	@Test(expected = PropertyFileException.class)
+	@Test(expected = InvalidGrammarException.class)
 	public void testExecuteStringWithParsingError() throws Exception {
 
 		String input = "type elementname;  // element type and name\n"

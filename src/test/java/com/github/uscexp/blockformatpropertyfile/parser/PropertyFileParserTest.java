@@ -1,12 +1,12 @@
 package com.github.uscexp.blockformatpropertyfile.parser;
 
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
-import org.parboiled.Parboiled;
-import org.parboiled.errors.ErrorUtils;
-import org.parboiled.parserunners.RecoveringParseRunner;
-import org.parboiled.support.ParsingResult;
+
+import com.github.fge.grappa.Grappa;
+import com.github.uscexp.grappa.extension.nodes.AstTreeNode;
+import com.github.uscexp.grappa.extension.parser.Parser;
 
 
 public class PropertyFileParserTest {
@@ -34,16 +34,10 @@ public class PropertyFileParserTest {
 				+ "    varname1 = 10;\n" + "    varname2 = \"xyz\";\n"
 				+ "  }\n" + "}\n";
 
-		PropertyFileParser parser = Parboiled.createParser(PropertyFileParser.class);
-		RecoveringParseRunner<PropertyFileParser> recoveringParseRunner = new RecoveringParseRunner<>(parser.properties());
+		PropertyFileParser parser = Grappa.createParser(PropertyFileParser.class);
+		AstTreeNode<String> rootNode = Parser.parseInput(PropertyFileParser.class, parser.properties(), input, true);
 		
-		ParsingResult<PropertyFileParser> parsingResult = recoveringParseRunner.run(input);
-		
-		if(parsingResult.hasErrors()) {
-			System.err.println(String.format("Input parse error(s): %s", ErrorUtils.printParseErrors(parsingResult)));
-		}
-		
-		assertFalse(parsingResult.hasErrors());
+		assertNotNull(rootNode);
 		
 	}
 }

@@ -3,15 +3,13 @@
  */
 package com.github.uscexp.blockformatpropertyfile.parser;
 
-import org.parboiled.Node;
-
 /**
  * Command implementation for the <code>PropertyFileParser</code> rule: CURLYCLOSE.
  */
 public class AstCURLYCLOSETreeNode<V> extends AstBaseCommandTreeNode<V> {
 
-	public AstCURLYCLOSETreeNode(Node<?> node, String value) {
-		super(node, value);
+	public AstCURLYCLOSETreeNode(String rule, String value) {
+		super(rule, value);
 	}
 
 	@Override

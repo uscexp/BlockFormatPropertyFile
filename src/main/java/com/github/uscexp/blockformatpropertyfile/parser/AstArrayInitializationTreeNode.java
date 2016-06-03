@@ -3,15 +3,13 @@
  */
 package com.github.uscexp.blockformatpropertyfile.parser;
 
-import org.parboiled.Node;
-
 /**
  * Command implementation for the <code>PropertyFileParser</code> rule: arrayInitialization.
  */
 public class AstArrayInitializationTreeNode<V> extends AstBaseCommandTreeNode<V> {
 
-	public AstArrayInitializationTreeNode(Node<?> node, String value) {
-		super(node, value);
+	public AstArrayInitializationTreeNode(String rule, String value) {
+		super(rule, value);
 	}
 
 	@Override

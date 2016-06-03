@@ -3,15 +3,13 @@
  */
 package com.github.uscexp.blockformatpropertyfile.parser;
 
-import org.parboiled.Node;
-
 /**
  * Command implementation for the <code>PropertyFileParser</code> rule: block.
  */
 public class AstBlockTreeNode<V> extends AstBaseCommandTreeNode<V> {
 
-	public AstBlockTreeNode(Node<?> node, String value) {
-		super(node, value);
+	public AstBlockTreeNode(String rule, String value) {
+		super(rule, value);
 	}
 
 	@Override

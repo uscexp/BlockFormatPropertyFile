@@ -3,8 +3,6 @@
  */
 package com.github.uscexp.blockformatpropertyfile.parser;
 
-import org.parboiled.Node;
-
 import com.github.uscexp.blockformatpropertyfile.PropertyFile;
 import com.github.uscexp.blockformatpropertyfile.PropertyStruct;
 import com.github.uscexp.blockformatpropertyfile.interpreter.PropertyFileInterpreter;
@@ -25,8 +23,8 @@ public class AstBaseCommandTreeNode<V> extends AstCommandTreeNode<V> {
 	protected PropertyFile propertyFile;
 	
 
-	public AstBaseCommandTreeNode(Node<?> node, String value) {
-		super(node, value);
+	public AstBaseCommandTreeNode(String rule, String value) {
+		super(rule, value);
 	}
 
 	@Override

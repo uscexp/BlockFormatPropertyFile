@@ -3,15 +3,13 @@
  */
 package com.github.uscexp.blockformatpropertyfile.parser;
 
-import org.parboiled.Node;
-
 /**
  * Command implementation for the <code>PropertyFileParser</code> rule: floatingPointLiteral.
  */
 public class AstFloatingPointLiteralTreeNode<V> extends AstBaseCommandTreeNode<V> {
 
-	public AstFloatingPointLiteralTreeNode(Node<?> node, String value) {
-		super(node, value);
+	public AstFloatingPointLiteralTreeNode(String rule, String value) {
+		super(rule, value);
 	}
 
 	@Override

@@ -5,8 +5,6 @@ package com.github.uscexp.blockformatpropertyfile.parser;
 
 import java.util.Stack;
 
-import org.parboiled.Node;
-
 import com.github.uscexp.blockformatpropertyfile.PropertyStruct;
 
 /**
@@ -14,8 +12,8 @@ import com.github.uscexp.blockformatpropertyfile.PropertyStruct;
  */
 public class AstStructTreeNode<V> extends AstBaseCommandTreeNode<V> {
 
-	public AstStructTreeNode(Node<?> node, String value) {
-		super(node, value);
+	public AstStructTreeNode(String rule, String value) {
+		super(rule, value);
 	}
 
 	@Override

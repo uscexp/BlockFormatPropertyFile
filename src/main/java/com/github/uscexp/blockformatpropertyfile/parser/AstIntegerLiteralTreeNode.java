@@ -3,15 +3,13 @@
  */
 package com.github.uscexp.blockformatpropertyfile.parser;
 
-import org.parboiled.Node;
-
 /**
  * Command implementation for the <code>PropertyFileParser</code> rule: integerLiteral.
  */
 public class AstIntegerLiteralTreeNode<V> extends AstBaseCommandTreeNode<V> {
 
-	public AstIntegerLiteralTreeNode(Node<?> node, String value) {
-		super(node, value);
+	public AstIntegerLiteralTreeNode(String rule, String value) {
+		super(rule, value);
 	}
 
 	@Override

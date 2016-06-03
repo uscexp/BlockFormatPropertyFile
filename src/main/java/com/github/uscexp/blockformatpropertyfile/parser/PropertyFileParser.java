@@ -1,10 +1,8 @@
 
 package com.github.uscexp.blockformatpropertyfile.parser;
 
-import org.parboiled.BaseParser;
-import org.parboiled.Rule;
-import org.parboiled.annotations.BuildParseTree;
-
+import com.github.fge.grappa.parsers.BaseParser;
+import com.github.fge.grappa.rules.Rule;
 import com.github.uscexp.grappa.extension.annotations.AstCommand;
 import com.github.uscexp.grappa.extension.annotations.AstValue;
 
@@ -15,7 +13,6 @@ import com.github.uscexp.grappa.extension.annotations.AstValue;
  * @author PegParserGenerator
  * 
  */
-@BuildParseTree
 public class PropertyFileParser
     extends BaseParser<String>
 {

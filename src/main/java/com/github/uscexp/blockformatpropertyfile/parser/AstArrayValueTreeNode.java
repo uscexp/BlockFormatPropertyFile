@@ -7,15 +7,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Stack;
 
-import org.parboiled.Node;
-
 /**
  * Command implementation for the <code>PropertyFileParser</code> rule: arrayValue.
  */
 public class AstArrayValueTreeNode<V> extends AstBaseCommandTreeNode<V> {
 
-	public AstArrayValueTreeNode(Node<?> node, String value) {
-		super(node, value);
+	public AstArrayValueTreeNode(String rule, String value) {
+		super(rule, value);
 	}
 
 	@Override
