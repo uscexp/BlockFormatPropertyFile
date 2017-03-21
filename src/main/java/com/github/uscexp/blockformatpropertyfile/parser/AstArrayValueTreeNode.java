@@ -5,7 +5,8 @@ package com.github.uscexp.blockformatpropertyfile.parser;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Stack;
+
+import com.github.uscexp.grappa.extension.util.IStack;
 
 /**
  * Command implementation for the <code>PropertyFileParser</code> rule: arrayValue.
@@ -21,7 +22,7 @@ public class AstArrayValueTreeNode<V> extends AstBaseCommandTreeNode<V> {
 		throws Exception {
 		super.interpretAfterChilds(id);
 
-		Stack<Object> stack = processStore.getStack();
+		IStack<Object> stack = processStore.getStack();
 		List<Object> result = new ArrayList<>();
 		if(!stack.isEmpty()) {
 			while (!stack.isEmpty()) {
@@ -29,7 +30,7 @@ public class AstArrayValueTreeNode<V> extends AstBaseCommandTreeNode<V> {
 				result.add(object);
 			}
 		} else {
-			Stack<Object> arrayStack = arrayStructStore.getStack();
+			IStack<Object> arrayStack = arrayStructStore.getStack();
 			while (!arrayStack.isEmpty()) {
 				Object object = arrayStack.pop();
 				result.add(object);

@@ -3,9 +3,8 @@
  */
 package com.github.uscexp.blockformatpropertyfile.parser;
 
-import java.util.Stack;
-
 import com.github.uscexp.blockformatpropertyfile.PropertyStruct;
+import com.github.uscexp.grappa.extension.util.IStack;
 
 /**
  * Command implementation for the <code>PropertyFileParser</code> rule: struct.
@@ -20,7 +19,7 @@ public class AstStructTreeNode<V> extends AstBaseCommandTreeNode<V> {
 	protected void interpretAfterChilds(Long id)
 		throws Exception {
 		super.interpretAfterChilds(id);
-		Stack<Object> stack = processStore.getStack();
+		IStack<Object> stack = processStore.getStack();
 		String name = (String) stack.pop();
 		PropertyStruct propertyStruct = (PropertyStruct) stack.pop();
 		propertyStruct.setName(name);
