@@ -4,6 +4,7 @@
 package com.github.uscexp.blockformatpropertyfile.interpreter;
 
 import java.util.Date;
+import java.util.UUID;
 
 import com.github.fge.grappa.Grappa;
 import com.github.uscexp.blockformatpropertyfile.PropertyFile;
@@ -16,7 +17,7 @@ import com.github.uscexp.grappa.extension.nodes.AstTreeNode;
 import com.github.uscexp.grappa.extension.parser.Parser;
 
 /**
- * @author  haui
+ * @author haui
  */
 public class PropertyFileInterpreter {
 
@@ -35,12 +36,12 @@ public class PropertyFileInterpreter {
 	}
 
 	public void execute(String input, PropertyFile propertyFile)
-		throws PropertyFileException {
+			throws PropertyFileException {
 		AstTreeNode<String> rootNode = Parser.parseInput(PropertyFileParser.class, parser.properties(), input, true);
 
 		AstInterpreter<String> astInterpreter = new AstInterpreter<>();
 
-		Long id = new Date().getTime();
+		Long id = new Date().getTime() + UUID.randomUUID().hashCode();
 		try {
 			interpret(propertyFile, rootNode, astInterpreter, id);
 		} catch (Exception e) {
@@ -52,7 +53,7 @@ public class PropertyFileInterpreter {
 
 	private void interpret(PropertyFile propertyFile, AstTreeNode<String> rootNode,
 			AstInterpreter<String> astInterpreter, Long id)
-		throws AstInterpreterException {
+			throws AstInterpreterException {
 		ProcessStore<String> processStore = ProcessStore.getInstance(id);
 		processStore.setNewVariable(PROPERTY_FILE, propertyFile);
 		astInterpreter.interpretBackwardOrder(PropertyFileParser.class, rootNode, id);

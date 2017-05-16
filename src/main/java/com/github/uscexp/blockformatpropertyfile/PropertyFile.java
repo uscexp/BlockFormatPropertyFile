@@ -19,51 +19,34 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
 /**
- *<p>
+ * <p>
  * Description: Represents properties that are loaded from a property file.<br>
  * Example:<br>
- <pre>
- \/*
-  * Comment
-  *\/
-// Comment
-
-type elementname  // element type and name
-{
-  varname1 = 10.0;  // Double
-  varname2 = "hallo, so geht das";  // String
-  varname3 = {
-    {   // Array (Vector) of structs
-      varname1 = true;  // Boolean
-      varname2 = 5; // Long
-      varname3 = "so so";
-      varname4 = {true, false, true}; // Array (Vector) of Booleans
-      varname5 = {1, 2, 4, 3};  // Array (Vector) of Longs
-      varname6 = {"bla bla", "geht das so", "und mit"};  // Array (Vector) of Strings
-    }
-    ,
-    {
-      varname1 = true;
-    }
-  };
-  varname4  // Struct (PropertyStruct)
-  {
-    varname1 = 10;
-    varname2 = "xyz";
-  }
-}
- <pre>
+ * 
+ * <pre>
+ * \/* Comment \/ // Comment
+ * 
+ * type elementname // element type and name { varname1 = 10.0; // Double
+ * varname2 = "hallo, so geht das"; // String varname3 = { { // Array (Vector)
+ * of structs varname1 = true; // Boolean varname2 = 5; // Long varname3 = "so
+ * so"; varname4 = {true, false, true}; // Array (Vector) of Booleans varname5 =
+ * {1, 2, 4, 3}; // Array (Vector) of Longs varname6 = {"bla bla", "geht das
+ * so", "und mit"}; // Array (Vector) of Strings } , { varname1 = true; } };
+ * varname4 // Struct (PropertyStruct) { varname1 = 10; varname2 = "xyz"; } }
+ * 
+ * <pre>
  * Example access to the values:<br>
- * PropertyFile pf = ...;
- * ...
- * double d = pf.doubleValue( "elementname.varname1");
- * long l = pf.longValue( "elementname.varname3[0].varname5[2]");
- * Boolean bl = (Boolean)pf.get( "elementname.varname3[0].varname1");
- * Object[] objects = pf.arrayValue( "elementname.varname3[0].varname5");
- * PropertyStruct pstruct = pf.structValue( "elementname.varname4");
- * PropertyStruct pstruct1 = pf.structValue( "elementname.varname3[0]");
- *</p><p>
- * @author  haui
+ * PropertyFile pf = ...; ... double d = pf.doubleValue(
+ * "elementname.varname1"); long l = pf.longValue(
+ * "elementname.varname3[0].varname5[2]"); Boolean bl = (Boolean)pf.get(
+ * "elementname.varname3[0].varname1"); Object[] objects = pf.arrayValue(
+ * "elementname.varname3[0].varname5"); PropertyStruct pstruct = pf.structValue(
+ * "elementname.varname4"); PropertyStruct pstruct1 = pf.structValue(
+ * "elementname.varname3[0]");
+ * </p>
+ * <p>
+ * 
+ * @author haui
  */
 public class PropertyFile extends PropertyStruct {
 
@@ -102,7 +85,7 @@ public class PropertyFile extends PropertyStruct {
 	}
 
 	public void load()
-		throws PropertyFileException {
+			throws PropertyFileException {
 		try {
 			String input = readFile();
 
@@ -113,7 +96,7 @@ public class PropertyFile extends PropertyStruct {
 	}
 
 	private String readFile()
-		throws IOException {
+			throws IOException {
 		byte[] encoded = Files.readAllBytes(Paths.get(fileRead));
 		return new String(encoded, encoding);
 	}
@@ -121,14 +104,15 @@ public class PropertyFile extends PropertyStruct {
 	/**
 	 * gets all elements for a type of a PropertyFile.
 	 *
-	 * @param  typeKey  type
-	 * @return  list of the elements (PropertyStruct) of that type
+	 * @param typeKey
+	 *            type
+	 * @return list of the elements (PropertyStruct) of that type
 	 */
 	public List<PropertyStruct> getElementsByType(String typeKey) {
 		List<PropertyStruct> result = getTypesMap().get(typeKey);
 		return result;
 	}
-	
+
 	public void putElementByType(String typeKey, PropertyStruct propertyStruct) {
 		getTypesMap().put(typeKey, propertyStruct);
 	}
