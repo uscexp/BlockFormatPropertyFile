@@ -1,0 +1,70 @@
+Properties <- S Element+ EOI
+Element <- TypeName ElementName Block S
+TypeName <- IDENTIFIER S
+ElementName <- IDENTIFIER S
+Block <- CURLYOPEN BlockDefinition+ CURLYCLOSE
+BlockDefinition <- (VariableName EQUALS VariableDefinition / Struct)
+VariableName <- IDENTIFIER S
+VariableDefinition <- Value SEMICOLON
+ArrayInitialization <- CURLYOPEN ArrayValue? CURLYCLOSE
+Struct <- VariableName Block
+Value <- FloatingPointLiteral / IntegerLiteral / StringLiteral / BooleanLiteral / ArrayInitialization
+ArrayValue <- IntegerLiteral (COMMA IntegerLiteral)*
+	/ FloatingPointLiteral (COMMA FloatingPointLiteral)*
+	/ StringLiteral (COMMA StringLiteral)*
+	/ BooleanLiteral (COMMA BooleanLiteral)*
+	/ ArrayInitialization (COMMA ArrayInitialization)*
+	/ ArrayBlock (COMMA ArrayBlock)*
+ArrayBlock <- Block S
+
+IDENTIFIER <- IdentStart IdentCont*
+IdentCont <- IdentStart / [0-9]
+IdentStart <- [a-zA-Z_]
+
+#Literals
+IntegerLiteral <- (DecimalLiteral [lL]?) / (HexLiteral [lL]?) / (OctalLiteral [lL]?)
+DecimalLiteral <- [1-9][0-9]*
+HexLiteral <- "0" [xX] [0-9a-fA-F]+
+OctalLiteral <- "0" [0-7]*
+FloatingPointLiteral <- [0-9]+ '.' [0-9]* Exponent? [fFdD]?
+	/ '.' [0-9]+ Exponent? [fFdD]?
+	/ [0-9]+ Exponent [fFdD]?
+	/ [0-9]+ Exponent? [fFdD]
+Exponent <- [eE] [+-]? [0-9]+
+Character <- BackSlash ( Quote
+	/ DoubleQuote
+	/ BackQuote
+	/ BackSlash
+	/ [nrt]
+	/ [0-2][0-7][0-7]
+	/ [0-7][0-7]?)
+	/ !BackSlash .
+
+BackSlash <- '\\'
+Quote <- '\''
+DoubleQuote <- '\"'
+BackQuote <- '`'
+SEMICOLON <- ';' S
+COMMA <- ',' S
+OPEN <- '(' S
+CLOSE <- ')' S
+CURLYOPEN <- '{' S
+CURLYCLOSE <- '}' S
+SQUAREOPEN <- '[' S
+SQUARECLOSE <- ']' S
+EQUALS <- '=' S
+BooleanLiteral <- TRUE / FALSE
+CharLiteral <- Quote Character Quote S
+Str <- (!DoubleQuote Character)*
+StringLiteral <- DoubleQuote Str DoubleQuote S
+TRUE <- "true" S
+FALSE <- "false" S
+
+# Comments
+SingleLineComment <- "//" (!EOL .)* (EOL/EOI)
+MultiLineComment <- "/*" (!"*/" .)* "*/"
+
+# Whitespaces
+EOL <- '\r\n' / '\n' / '\r'
+S <- (MultiLineComment / ' ' / '\t' / EOL / SingleLineComment )*
+EOI <- !.
