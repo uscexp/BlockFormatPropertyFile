@@ -22,6 +22,7 @@ import com.google.common.collect.ListMultimap;
  * <p>
  * Description: Represents properties that are loaded from a property file.<br>
  * Example:<br>
+ * </p>
  * 
  * <pre>
  * \/* Comment \/ // Comment
@@ -33,6 +34,7 @@ import com.google.common.collect.ListMultimap;
  * {1, 2, 4, 3}; // Array (Vector) of Longs varname6 = {"bla bla", "geht das
  * so", "und mit"}; // Array (Vector) of Strings } , { varname1 = true; } };
  * varname4 // Struct (PropertyStruct) { varname1 = 10; varname2 = "xyz"; } }
+ * </pre>
  * 
  * <pre>
  * Example access to the values:<br>
@@ -43,8 +45,10 @@ import com.google.common.collect.ListMultimap;
  * "elementname.varname3[0].varname5"); PropertyStruct pstruct = pf.structValue(
  * "elementname.varname4"); PropertyStruct pstruct1 = pf.structValue(
  * "elementname.varname3[0]");
- * </p>
- * <p>
+ * </pre>
+ * 
+ * <br>
+ * 
  * 
  * @author haui
  */
@@ -140,35 +144,47 @@ public class PropertyFile extends PropertyStruct {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (!super.equals(obj))
+		}
+		if (!super.equals(obj)) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		PropertyFile other = (PropertyFile) obj;
 		if (encoding == null) {
-			if (other.encoding != null)
+			if (other.encoding != null) {
 				return false;
-		} else if (!encoding.equals(other.encoding))
+			}
+		} else if (!encoding.equals(other.encoding)) {
 			return false;
+		}
 		if (fileRead == null) {
-			if (other.fileRead != null)
+			if (other.fileRead != null) {
 				return false;
-		} else if (!fileRead.equals(other.fileRead))
+			}
+		} else if (!fileRead.equals(other.fileRead)) {
 			return false;
+		}
 		if (fileSave == null) {
-			if (other.fileSave != null)
+			if (other.fileSave != null) {
 				return false;
-		} else if (!fileSave.equals(other.fileSave))
+			}
+		} else if (!fileSave.equals(other.fileSave)) {
 			return false;
-		if (readOnly != other.readOnly)
+		}
+		if (readOnly != other.readOnly) {
 			return false;
+		}
 		if (typesMap == null) {
-			if (other.typesMap != null)
+			if (other.typesMap != null) {
 				return false;
-		} else if (!typesMap.equals(other.typesMap))
+			}
+		} else if (!typesMap.equals(other.typesMap)) {
 			return false;
+		}
 		return true;
 	}
 
