@@ -1,0 +1,63 @@
+/*
+ * Simple Programming Language Shell: Method aliases
+ *
+ * --------------------------------
+ * file helper functions
+ * --------------------------------
+ */
+
+/*
+method openFile  // filereader openFile(string filepath)
+{
+  type = "java.io.FileReader";
+  realMethod = "constructor";  // call constructor in this case
+  static = false;
+  realParams = { "string" };
+  returnType = "filereader";
+}
+*/
+
+method openFileToRead  // filereader openFileToRead(string) aliasname to be used in SplShell
+{
+  type = "haui.app.splshell.util.HelperMethods";
+  realMethod = "createBufferedReader";  // method name in real object (java.lang.String)
+  static = true;
+  realParams = { "string" };
+  returnType = "filereader";
+}
+
+type elementname  // element type and name
+{
+  varname1 = 10.0;  // Double
+  varname2 = "hallo, so geht das";  // String
+  varname3 = {
+    {   // Array (Vector) of structs
+      varname1 = true;  // Boolean
+      varname2 = 5; // Long
+      varname3 = "so so";
+      varname4 = {true, false, true}; // Array (Vector) of Booleans
+      varname5 = {1, 2, 4, 3};  // Array (Vector) of Longs
+      varname6 = {"bla bla", "geht das so", "und mit"};  // Array (Vector) of Strings
+    }
+    ,
+    {
+      varname1 = true;
+    }
+  };
+  varname4  // Struct (PropertyStruct)
+  {
+    varname1 = 10;
+    varname2 = "xyz";
+    varname3
+    {
+      varname1 = 5;
+      varname2
+      {
+        varname1 = 3;
+      }
+    }
+  }
+}
+
+
+// end string helper functions
