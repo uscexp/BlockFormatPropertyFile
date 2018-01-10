@@ -6,7 +6,7 @@ package com.github.uscexp.blockformatpropertyfile;
 /**
  * Key, value pair plus condition.
  *
- * @author  haui
+ * @author haui
  */
 public class PropertyCriteriaPair implements PropertyCriteria {
 
@@ -18,9 +18,12 @@ public class PropertyCriteriaPair implements PropertyCriteria {
 	/**
 	 * constructor for a PropertyCriteriaPair.
 	 *
-	 * @param  strKey  key (variablename) of the value
-	 * @param  value  value of the variable
-	 * @param  condition  condition to be checked with a later given value
+	 * @param strKey
+	 *            key (variablename) of the value
+	 * @param value
+	 *            value of the variable
+	 * @param condition
+	 *            condition to be checked with a later given value
 	 */
 	public PropertyCriteriaPair(String strKey, Object value, PropertyCondition condition) {
 		this(strKey, value, null, condition);
@@ -29,10 +32,14 @@ public class PropertyCriteriaPair implements PropertyCriteria {
 	/**
 	 * constructor for a PropertyCriteriaPair.
 	 *
-	 * @param  strKey  key (variablename) of the value
-	 * @param  value  value of the variable
-	 * @param  valueToBeChecked  value to be checked later
-	 * @param  condition  condition to check the two values
+	 * @param strKey
+	 *            key (variablename) of the value
+	 * @param value
+	 *            value of the variable
+	 * @param valueToBeChecked
+	 *            value to be checked later
+	 * @param condition
+	 *            condition to check the two values
 	 */
 	public PropertyCriteriaPair(String strKey, Object value, Object valueToBeChecked, PropertyCondition condition) {
 		key = strKey;
@@ -62,46 +69,50 @@ public class PropertyCriteriaPair implements PropertyCriteria {
 		valueToBeChecked = ps.get(key);
 	}
 
+	//@formatter:off
 	/**
 	 * compares the two given values<br>
-	 * EQUAL -> value = internal value<br>
-	 * NOT_EQUAL -> value != internal value<br>
-	 * EQUAL_NOCASE -> value = internal value (only Strings, not case sensitive)<br>
-	 * NOT_EQUAL_NOCASE -> value != internal value (only Strings, not case sensitive)<br>
-	 * GREATER -> value > internal value<br>
-	 * GREATER_EQUAL -> value >= internal value<br>
-	 * SMALLER -> value < internal value<br>
-	 * SMALLER_EQUAL -> value <= internal value<br>
-	 * CONTAINS -> value included in internal value (only Strings, case snsitive)<br>
-	 * CONTAINS_NOCASE -> value included in internal value (only Strings, not case sensitive)
+	 * EQUAL -{@literal >} value = internal value<br>
+	 * NOT_EQUAL -{@literal >} value != internal value<br>
+	 * EQUAL_NOCASE -{@literal >} value = internal value (only Strings, not case sensitive)<br>
+	 * NOT_EQUAL_NOCASE -{@literal >} value != internal value (only Strings, not case sensitive)<br>
+	 * GREATER -{@literal >} value {@literal >} internal value<br>
+	 * GREATER_EQUAL -{@literal >} value {@literal >}= internal value<br>
+	 * SMALLER -{@literal >} value {@literal <} internal value<br>
+	 * SMALLER_EQUAL -{@literal >} value {@literal <}= internal value<br>
+	 * CONTAINS -{@literal >} value included in internal value (only Strings, case snsitive)<br>
+	 * CONTAINS_NOCASE -{@literal >} value included in internal value (only Strings, not case sensitive)
 	 *
 	 * @param  value  value of the variable
 	 * @return  true if contition is true
 	 */
 	public boolean compare(Object value) {
+        //@formatter:on
 		if (value.getClass() != valueObject.getClass()) {
 			throw new ClassCastException("Value class is not of the same type!");
 		}
 		return condition.evaluate(value, valueObject);
 	}
 
+	//@formatter:off
 	/**
 	 * compares the two given values<br>
-	 * EQUAL -> internal valueToBeChecked = internal value<br>
-	 * NOT_EQUAL -> internal valueToBeChecked != internal value<br>
-	 * EQUAL_NOCASE -> internal valueToBeChecked = value (only Strings, not case sensitive)<br>
-	 * NOT_EQUAL_NOCASE -> internal valueToBeChecked != value (only Strings, not case sensitive)<br>
-	 * GREATER -> internal valueToBeChecked > internal value<br>
-	 * GREATER_EQUAL -> internal valueToBeChecked >= internal value<br>
-	 * SMALLER -> internal valueToBeChecked < internal value<br>
-	 * SMALLER_EQUAL -> internal valueToBeChecked <= internal value<br>
-	 * CONTAINS -> internal valueToBeChecked included in value (only Strings, case snsitive)<br>
-	 * CONTAINS_NOCASE -> internal valueToBeChecked included in value (only Strings, not case sensitive)
+	 * EQUAL -{@literal >} internal valueToBeChecked = internal value<br>
+	 * NOT_EQUAL -{@literal >} internal valueToBeChecked != internal value<br>
+	 * EQUAL_NOCASE -{@literal >} internal valueToBeChecked = value (only Strings, not case sensitive)<br>
+	 * NOT_EQUAL_NOCASE -{@literal >} internal valueToBeChecked != value (only Strings, not case sensitive)<br>
+	 * GREATER -{@literal >} internal valueToBeChecked {@literal >} internal value<br>
+	 * GREATER_EQUAL -{@literal >} internal valueToBeChecked {@literal >}= internal value<br>
+	 * SMALLER -{@literal >} internal valueToBeChecked {@literal <} internal value<br>
+	 * SMALLER_EQUAL -{@literal >} internal valueToBeChecked {@literal <}= internal value<br>
+	 * CONTAINS -{@literal >} internal valueToBeChecked included in value (only Strings, case sensitive)<br>
+	 * CONTAINS_NOCASE -{@literal >} internal valueToBeChecked included in value (only Strings, not case sensitive)
 	 *
 	 * @return  true if contition is true
 	 */
 	@Override
 	public boolean compare() {
+        //@formatter:on
 		boolean blRet = false;
 		blRet = compare(valueToBeChecked);
 		return blRet;
