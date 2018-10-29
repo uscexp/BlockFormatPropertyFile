@@ -1,20 +1,21 @@
 /*
- * Copyright (C) 2014 by haui - all rights reserved
+ * Copyright (C) 2014 - 2018 by haui - all rights reserved
  */
 package com.github.uscexp.blockformatpropertyfile.interpreter;
 
 import java.util.Date;
 import java.util.UUID;
 
-import com.github.fge.grappa.Grappa;
+import org.parboiled.Parboiled;
+
 import com.github.uscexp.blockformatpropertyfile.PropertyFile;
 import com.github.uscexp.blockformatpropertyfile.exception.PropertyFileException;
 import com.github.uscexp.blockformatpropertyfile.parser.PropertyFileParser;
-import com.github.uscexp.grappa.extension.exception.AstInterpreterException;
-import com.github.uscexp.grappa.extension.interpreter.AstInterpreter;
-import com.github.uscexp.grappa.extension.interpreter.ProcessStore;
-import com.github.uscexp.grappa.extension.nodes.AstTreeNode;
-import com.github.uscexp.grappa.extension.parser.Parser;
+import com.github.uscexp.parboiled.extension.exception.AstInterpreterException;
+import com.github.uscexp.parboiled.extension.interpreter.AstInterpreter;
+import com.github.uscexp.parboiled.extension.interpreter.ProcessStore;
+import com.github.uscexp.parboiled.extension.nodes.AstTreeNode;
+import com.github.uscexp.parboiled.extension.parser.Parser;
 
 /**
  * @author haui
@@ -32,7 +33,7 @@ public class PropertyFileInterpreter {
 	}
 
 	public PropertyFileInterpreter() {
-		parser = Grappa.createParser(PropertyFileParser.class);
+		parser = Parboiled.createParser(PropertyFileParser.class);
 	}
 
 	public void execute(String input, PropertyFile propertyFile)

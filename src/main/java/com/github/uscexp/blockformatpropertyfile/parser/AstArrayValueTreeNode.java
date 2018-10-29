@@ -1,15 +1,16 @@
 /*
- * Copyright (C) 2014 by haui - all rights reserved
+ * Copyright (C) 2014 - 2018 by haui - all rights reserved
  */
 package com.github.uscexp.blockformatpropertyfile.parser;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.github.uscexp.grappa.extension.util.IStack;
+import com.github.uscexp.parboiled.extension.util.IStack;
 
 /**
- * Command implementation for the <code>PropertyFileParser</code> rule: arrayValue.
+ * Command implementation for the <code>PropertyFileParser</code> rule:
+ * arrayValue.
  */
 public class AstArrayValueTreeNode<V> extends AstBaseCommandTreeNode<V> {
 
@@ -19,12 +20,12 @@ public class AstArrayValueTreeNode<V> extends AstBaseCommandTreeNode<V> {
 
 	@Override
 	protected void interpretAfterChilds(Long id)
-		throws Exception {
+			throws Exception {
 		super.interpretAfterChilds(id);
 
 		IStack<Object> stack = processStore.getStack();
 		List<Object> result = new ArrayList<>();
-		if(!stack.isEmpty()) {
+		if (!stack.isEmpty()) {
 			while (!stack.isEmpty()) {
 				Object object = stack.pop();
 				result.add(object);

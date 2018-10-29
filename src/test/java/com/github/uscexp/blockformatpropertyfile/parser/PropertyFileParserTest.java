@@ -3,17 +3,16 @@ package com.github.uscexp.blockformatpropertyfile.parser;
 import static org.junit.Assert.assertNotNull;
 
 import org.junit.Test;
+import org.parboiled.Parboiled;
 
-import com.github.fge.grappa.Grappa;
-import com.github.uscexp.grappa.extension.nodes.AstTreeNode;
-import com.github.uscexp.grappa.extension.parser.Parser;
-
+import com.github.uscexp.parboiled.extension.nodes.AstTreeNode;
+import com.github.uscexp.parboiled.extension.parser.Parser;
 
 public class PropertyFileParserTest {
 
 	@Test
 	public void test() {
-		
+
 		String input = "// Comment\n"
 				+ "\n"
 				+ "type elementname  // element type and name\n"
@@ -34,10 +33,10 @@ public class PropertyFileParserTest {
 				+ "    varname1 = 10;\n" + "    varname2 = \"xyz\";\n"
 				+ "  }\n" + "}\n";
 
-		PropertyFileParser parser = Grappa.createParser(PropertyFileParser.class);
+		PropertyFileParser parser = Parboiled.createParser(PropertyFileParser.class);
 		AstTreeNode<String> rootNode = Parser.parseInput(PropertyFileParser.class, parser.properties(), input, true);
-		
+
 		assertNotNull(rootNode);
-		
+
 	}
 }
