@@ -4,7 +4,7 @@
 
 	<groupId>com.github.uscexp</groupId>
 	<artifactId>BlockFormatPropertyFile</artifactId>
-	<version>0.2.0-Beta-SNAPSHOT</version>
+	<version>0.2.0-Beta</version>
 	<packaging>jar</packaging>
 
 	<name>${project.groupId}:${project.artifactId}</name>
@@ -151,12 +151,12 @@
 		<dependency>
 			<groupId>com.github.uscexp</groupId>
 			<artifactId>jDotNotation</artifactId>
-			<version>1.3.0-Beta-SNAPSHOT</version>
+			<version>1.3.0-Beta</version>
 		</dependency>
 		<dependency>
 			<groupId>com.github.uscexp</groupId>
 			<artifactId>parboiled.extension</artifactId>
-			<version>0.2.0-Beta-SNAPSHOT</version>
+			<version>0.1.0-Beta</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
