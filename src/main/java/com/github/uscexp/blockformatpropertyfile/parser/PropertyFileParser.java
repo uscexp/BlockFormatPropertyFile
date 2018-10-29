@@ -1,218 +1,229 @@
 
 package com.github.uscexp.blockformatpropertyfile.parser;
 
-import com.github.fge.grappa.parsers.BaseParser;
-import com.github.fge.grappa.rules.Rule;
-import com.github.uscexp.grappa.extension.annotations.AstCommand;
-import com.github.uscexp.grappa.extension.annotations.AstValue;
+import org.parboiled.BaseParser;
+import org.parboiled.Context;
+import org.parboiled.Rule;
 
+import com.github.uscexp.parboiled.extension.annotations.AstCommand;
+import com.github.uscexp.parboiled.extension.annotations.AstValue;
 
 /**
- * Generated {@link BaseParser} implementation form 'PropertyFile.peg' PEG input file.
+ * Generated {@link BaseParser} implementation form 'PropertyFile.peg' PEG input
+ * file.
  * 
  * @author PegParserGenerator
  * 
  */
 public class PropertyFileParser
-    extends BaseParser<String>
-{
+		extends BaseParser<String> {
 
+	public Rule S() {
+		return ZeroOrMore(FirstOf(multiLineComment(), Ch(' '), Ch('\t'), EOL(), singleLineComment()));
+	}
 
-    public Rule S() {
-        return zeroOrMore(firstOf(multiLineComment(), ch(' '), ch('\t'), EOL(), singleLineComment()));
-    }
+	public Rule EOL() {
+		return FirstOf(String("\r\n"), Ch('\n'), Ch('\r'));
+	}
 
-    public Rule EOL() {
-        return firstOf(string("\r\n"), ch('\n'), ch('\r'));
-    }
+	public Rule multiLineComment() {
+		return Sequence(String("/*"), ZeroOrMore(Sequence(TestNot(String("*/")), ANY)), String("*/"));
+	}
 
-    public Rule multiLineComment() {
-        return sequence(string("/*"), zeroOrMore(sequence(testNot(string("*/")), ANY)), string("*/"));
-    }
+	public Rule singleLineComment() {
+		return Sequence(String("//"), ZeroOrMore(Sequence(TestNot(EOL()), ANY)), FirstOf(EOL(), EOI));
+	}
 
-    public Rule singleLineComment() {
-        return sequence(string("//"), zeroOrMore(sequence(testNot(EOL()), ANY)), firstOf(EOL(), EOI));
-    }
+	public Rule FALSE() {
+		return Sequence(String("false"), S());
+	}
 
-    public Rule FALSE() {
-        return sequence(string("false"), S());
-    }
+	public Rule TRUE() {
+		return Sequence(String("true"), S());
+	}
 
-    public Rule TRUE() {
-        return sequence(string("true"), S());
-    }
+	@AstCommand
+	public Rule stringLiteral() {
+		return Sequence(doubleQuote(), debug(getContext()), str(), doubleQuote(), S());
+	}
 
-    @AstCommand
-    public Rule stringLiteral() {
-        return sequence(doubleQuote(), str(), doubleQuote(), S());
-    }
+	public Rule str() {
+		return ZeroOrMore(Sequence(TestNot(doubleQuote()), Character()));
+	}
 
-    public Rule str() {
-        return zeroOrMore(sequence(testNot(doubleQuote()), character()));
-    }
+	public Rule charLiteral() {
+		return Sequence(quote(), Character(), quote(), S());
+	}
 
-    public Rule charLiteral() {
-        return sequence(quote(), character(), quote(), S());
-    }
+	@AstCommand
+	public Rule booleanLiteral() {
+		return FirstOf(TRUE(), FALSE());
+	}
 
-    @AstCommand
-    public Rule booleanLiteral() {
-        return firstOf(TRUE(), FALSE());
-    }
+	public Rule EQUALS() {
+		return Sequence(Ch('='), S());
+	}
 
-    public Rule EQUALS() {
-        return sequence(ch('='), S());
-    }
+	public Rule SQUARECLOSE() {
+		return Sequence(Ch(']'), S());
+	}
 
-    public Rule SQUARECLOSE() {
-        return sequence(ch(']'), S());
-    }
+	public Rule SQUAREOPEN() {
+		return Sequence(Ch('['), S());
+	}
 
-    public Rule SQUAREOPEN() {
-        return sequence(ch('['), S());
-    }
+	@AstCommand
+	public Rule CURLYCLOSE() {
+		return Sequence(Ch('}'), S());
+	}
 
-    @AstCommand
-    public Rule CURLYCLOSE() {
-        return sequence(ch('}'), S());
-    }
+	public Rule CURLYOPEN() {
+		return Sequence(Ch('{'), S());
+	}
 
-    public Rule CURLYOPEN() {
-        return sequence(ch('{'), S());
-    }
+	public Rule CLOSE() {
+		return Sequence(Ch(')'), S());
+	}
 
-    public Rule CLOSE() {
-        return sequence(ch(')'), S());
-    }
+	public Rule OPEN() {
+		return Sequence(Ch('('), S());
+	}
 
-    public Rule OPEN() {
-        return sequence(ch('('), S());
-    }
+	public Rule COMMA() {
+		return Sequence(Ch(','), S());
+	}
 
-    public Rule COMMA() {
-        return sequence(ch(','), S());
-    }
+	public Rule SEMICOLON() {
+		return Sequence(Ch(';'), S());
+	}
 
-    public Rule SEMICOLON() {
-        return sequence(ch(';'), S());
-    }
+	public Rule backQuote() {
+		return Ch('`');
+	}
 
-    public Rule backQuote() {
-        return ch('`');
-    }
+	public Rule doubleQuote() {
+		return Ch('\"');
+	}
 
-    public Rule doubleQuote() {
-        return ch('\"');
-    }
+	public Rule quote() {
+		return Ch('\'');
+	}
 
-    public Rule quote() {
-        return ch('\'');
-    }
+	public Rule backSlash() {
+		return Ch('\\');
+	}
 
-    public Rule backSlash() {
-        return ch('\\');
-    }
+	public Rule Character() {
+		return FirstOf(Sequence(backSlash(), FirstOf(quote(), doubleQuote(), backQuote(), backSlash(), FirstOf(Ch('n'), Ch('r'), Ch('t')),
+				Sequence(CharRange('0', '2'), CharRange('0', '7'), CharRange('0', '7')), Sequence(CharRange('0', '7'), Optional(CharRange('0', '7'))))), Sequence(TestNot(backSlash()), ANY));
+	}
 
-    public Rule character() {
-        return firstOf(sequence(backSlash(), firstOf(quote(), doubleQuote(), backQuote(), backSlash(), firstOf(ch('n'), ch('r'), ch('t')), sequence(charRange('0', '2'), charRange('0', '7'), charRange('0', '7')), sequence(charRange('0', '7'), optional(charRange('0', '7'))))), sequence(testNot(backSlash()), ANY));
-    }
+	public Rule exponent() {
+		return Sequence(FirstOf(Ch('e'), Ch('E')), OneOrMore(FirstOf(CharRange('+', ']'), Ch('?'), Ch(' '), Ch('['), CharRange('0', '9'))));
+	}
 
-    public Rule exponent() {
-        return sequence(firstOf(ch('e'), ch('E')), oneOrMore(firstOf(charRange('+', ']'), ch('?'), ch(' '), ch('['), charRange('0', '9'))));
-    }
+	@AstCommand
+	public Rule floatingPointLiteral() {
+		return FirstOf(Sequence(OneOrMore(CharRange('0', '9')), Ch('.'), ZeroOrMore(CharRange('0', '9')), Optional(exponent()), Optional(FirstOf(Ch('f'), Ch('F'), Ch('d'), Ch('D')))),
+				Sequence(Ch('.'), OneOrMore(CharRange('0', '9')), Optional(exponent()), Optional(FirstOf(Ch('f'), Ch('F'), Ch('d'), Ch('D')))),
+				Sequence(OneOrMore(CharRange('0', '9')), exponent(), Optional(FirstOf(Ch('f'), Ch('F'), Ch('d'), Ch('D')))),
+				Sequence(OneOrMore(CharRange('0', '9')), Optional(exponent()), FirstOf(Ch('f'), Ch('F'), Ch('d'), Ch('D'))));
+	}
 
-    @AstCommand
-    public Rule floatingPointLiteral() {
-        return firstOf(sequence(oneOrMore(charRange('0', '9')), ch('.'), zeroOrMore(charRange('0', '9')), optional(exponent()), optional(firstOf(ch('f'), ch('F'), ch('d'), ch('D')))), sequence(ch('.'), oneOrMore(charRange('0', '9')), optional(exponent()), optional(firstOf(ch('f'), ch('F'), ch('d'), ch('D')))), sequence(oneOrMore(charRange('0', '9')), exponent(), optional(firstOf(ch('f'), ch('F'), ch('d'), ch('D')))), sequence(oneOrMore(charRange('0', '9')), optional(exponent()), firstOf(ch('f'), ch('F'), ch('d'), ch('D'))));
-    }
+	public Rule octalLiteral() {
+		return Sequence(Ch('0'), ZeroOrMore(CharRange('0', '7')));
+	}
 
-    public Rule octalLiteral() {
-        return sequence(ch('0'), zeroOrMore(charRange('0', '7')));
-    }
+	public Rule hexLiteral() {
+		return Sequence(Ch('0'), FirstOf(Ch('x'), Ch('X')), OneOrMore(FirstOf(CharRange('0', '9'), CharRange('a', 'f'), CharRange('A', 'F'))));
+	}
 
-    public Rule hexLiteral() {
-        return sequence(ch('0'), firstOf(ch('x'), ch('X')), oneOrMore(firstOf(charRange('0', '9'), charRange('a', 'f'), charRange('A', 'F'))));
-    }
+	public Rule decimalLiteral() {
+		return Sequence(CharRange('1', '9'), ZeroOrMore(CharRange('0', '9')));
+	}
 
-    public Rule decimalLiteral() {
-        return sequence(charRange('1', '9'), zeroOrMore(charRange('0', '9')));
-    }
+	@AstCommand
+	public Rule integerLiteral() {
+		return FirstOf(Sequence(decimalLiteral(), Optional(FirstOf(Ch('l'), Ch('L')))), Sequence(hexLiteral(), Optional(FirstOf(Ch('l'), Ch('L')))),
+				Sequence(octalLiteral(), Optional(FirstOf(Ch('l'), Ch('L')))));
+	}
 
-    @AstCommand
-    public Rule integerLiteral() {
-        return firstOf(sequence(decimalLiteral(), optional(firstOf(ch('l'), ch('L')))), sequence(hexLiteral(), optional(firstOf(ch('l'), ch('L')))), sequence(octalLiteral(), optional(firstOf(ch('l'), ch('L')))));
-    }
+	public Rule identStart() {
+		return FirstOf(CharRange('a', 'z'), CharRange('A', 'Z'), Ch('_'));
+	}
 
-    public Rule identStart() {
-        return firstOf(charRange('a', 'z'), charRange('A', 'Z'), ch('_'));
-    }
+	public Rule identCont() {
+		return FirstOf(identStart(), CharRange('0', '9'));
+	}
 
-    public Rule identCont() {
-        return firstOf(identStart(), charRange('0', '9'));
-    }
+	@AstValue
+	public Rule IDENTIFIER() {
+		return Sequence(identStart(), ZeroOrMore(identCont()));
+	}
 
-    @AstValue
-    public Rule IDENTIFIER() {
-        return sequence(identStart(), zeroOrMore(identCont()));
-    }
+	@AstCommand
+	public Rule arrayValue() {
+		return FirstOf(Sequence(integerLiteral(), ZeroOrMore(Sequence(COMMA(), integerLiteral()))), Sequence(floatingPointLiteral(), ZeroOrMore(Sequence(COMMA(), floatingPointLiteral()))),
+				Sequence(stringLiteral(), ZeroOrMore(Sequence(COMMA(), stringLiteral()))), Sequence(booleanLiteral(), ZeroOrMore(Sequence(COMMA(), booleanLiteral()))),
+				Sequence(arrayInitialization(), ZeroOrMore(Sequence(COMMA(), arrayInitialization()))), Sequence(arrayBlock(), ZeroOrMore(Sequence(COMMA(), arrayBlock()))));
+	}
 
-    @AstCommand
-    public Rule arrayValue() {
-        return firstOf(sequence(integerLiteral(), zeroOrMore(sequence(COMMA(), integerLiteral()))), sequence(floatingPointLiteral(), zeroOrMore(sequence(COMMA(), floatingPointLiteral()))), sequence(stringLiteral(), zeroOrMore(sequence(COMMA(), stringLiteral()))), sequence(booleanLiteral(), zeroOrMore(sequence(COMMA(), booleanLiteral()))), sequence(arrayInitialization(), zeroOrMore(sequence(COMMA(), arrayInitialization()))), sequence(arrayBlock(), zeroOrMore(sequence(COMMA(), arrayBlock()))));
-    }
+	public Rule value() {
+		return FirstOf(floatingPointLiteral(), integerLiteral(), stringLiteral(), booleanLiteral(), arrayInitialization());
+	}
 
-    public Rule value() {
-        return firstOf(floatingPointLiteral(), integerLiteral(), stringLiteral(), booleanLiteral(), arrayInitialization());
-    }
+	@AstCommand
+	public Rule struct() {
+		return Sequence(variableName(), block());
+	}
 
-    @AstCommand
-    public Rule struct() {
-        return sequence(variableName(), block());
-    }
+	@AstCommand
+	public Rule arrayInitialization() {
+		return Sequence(CURLYOPEN(), Optional(arrayValue()), S(), CURLYCLOSE());
+	}
 
-    @AstCommand
-    public Rule arrayInitialization() {
-        return sequence(CURLYOPEN(), optional(arrayValue()), CURLYCLOSE());
-    }
+	public Rule variableDefinition() {
+		return Sequence(value(), SEMICOLON());
+	}
 
-    public Rule variableDefinition() {
-        return sequence(value(), SEMICOLON());
-    }
+	public Rule variableName() {
+		return Sequence(IDENTIFIER(), S());
+	}
 
-    public Rule variableName() {
-        return sequence(IDENTIFIER(), S());
-    }
+	@AstCommand
+	public Rule blockDefinition() {
+		return FirstOf(Sequence(variableName(), EQUALS(), variableDefinition()), struct());
+	}
 
-    @AstCommand
-    public Rule blockDefinition() {
-        return firstOf(sequence(variableName(), EQUALS(), variableDefinition()), struct());
-    }
+	@AstCommand
+	public Rule arrayBlock() {
+		return Sequence(block(), S());
+	}
 
-    @AstCommand
-    public Rule arrayBlock() {
-        return sequence(block(), S());
-    }
+	@AstCommand
+	public Rule block() {
+		return Sequence(CURLYOPEN(), OneOrMore(blockDefinition()), CURLYCLOSE());
+	}
 
-    @AstCommand
-    public Rule block() {
-        return sequence(CURLYOPEN(), oneOrMore(blockDefinition()), CURLYCLOSE());
-    }
+	public Rule elementName() {
+		return Sequence(IDENTIFIER(), S());
+	}
 
-    public Rule elementName() {
-        return sequence(IDENTIFIER(), S());
-    }
+	public Rule typeName() {
+		return Sequence(IDENTIFIER(), S());
+	}
 
-    public Rule typeName() {
-        return sequence(IDENTIFIER(), S());
-    }
+	@AstCommand
+	public Rule element() {
+		return Sequence(typeName(), elementName(), block(), S());
+	}
 
-    @AstCommand
-    public Rule element() {
-        return sequence(typeName(), elementName(), block(), S());
-    }
+	public Rule properties() {
+		return Sequence(S(), OneOrMore(element()), EOI);
+	}
 
-    public Rule properties() {
-        return sequence(S(), oneOrMore(element()), EOI);
-    }
+	public boolean debug(Context<String> context) {
+		return true;
+	}
 
 }

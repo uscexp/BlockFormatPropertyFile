@@ -6,7 +6,7 @@ Block <- CURLYOPEN BlockDefinition+ CURLYCLOSE
 BlockDefinition <- (VariableName EQUALS VariableDefinition / Struct)
 VariableName <- IDENTIFIER S
 VariableDefinition <- Value SEMICOLON
-ArrayInitialization <- CURLYOPEN ArrayValue? CURLYCLOSE
+ArrayInitialization <- CURLYOPEN ArrayValue? S CURLYCLOSE
 Struct <- VariableName Block
 Value <- FloatingPointLiteral / IntegerLiteral / StringLiteral / BooleanLiteral / ArrayInitialization
 ArrayValue <- IntegerLiteral (COMMA IntegerLiteral)*

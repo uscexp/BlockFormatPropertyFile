@@ -3,8 +3,8 @@ package com.github.uscexp.blockformatpropertyfile.interpreter;
 import java.net.URI;
 
 import org.junit.Test;
+import org.parboiled.errors.GrammarException;
 
-import com.github.fge.grappa.exceptions.InvalidGrammarException;
 import com.github.uscexp.blockformatpropertyfile.PropertyFile;
 import com.github.uscexp.blockformatpropertyfile.exception.PropertyFileException;
 
@@ -39,7 +39,7 @@ public class PropertyFileInterpreterTest {
 		PropertyFileInterpreter.getInstance().execute(input, propertyFile);
 	}
 
-	@Test(expected = InvalidGrammarException.class)
+	@Test(expected = GrammarException.class)
 	public void testExecuteStringWithParsingError() throws Exception {
 
 		String input = "type elementname;  // element type and name\n"

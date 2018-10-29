@@ -1,0 +1,37 @@
+type type
+{
+  varname1 = "double:[+-]?([0-9]*[.])?[0-9]+";
+  varname2 = "string?";		// optional property of string type
+  varname3 = {
+  	{
+  	  varname1 = "boolean";
+  	  varname2 = "long?:\\d{1,4}";
+  	  varname3 = "string?";
+  	  varname4 = { "boolean?" };
+  	  varname5 = { "long?:[0-4]*" };
+  	  varname6 = { "string?" };
+  	}
+  };
+  varname4
+  {
+    varname1 = "long";
+    varname2 = "string";
+    varname3
+    {
+      varname1 = "long";
+      varname2
+      {
+        varname1 = "long";
+      }
+    }
+  }
+}
+
+type method
+{
+  type = "string";
+  realMethod = "string";	// mandatory property of string type
+  static = "boolean";
+  realParams = { "string" };
+  returnType = "string";
+}
