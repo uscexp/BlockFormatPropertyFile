@@ -1,13 +1,14 @@
 /*
- * Copyright (C) 2014 by haui - all rights reserved
+ * Copyright (C) 2014 - 2018 by haui - all rights reserved
  */
 package com.github.uscexp.blockformatpropertyfile.parser;
 
 import com.github.uscexp.blockformatpropertyfile.PropertyStruct;
-import com.github.uscexp.grappa.extension.util.IStack;
+import com.github.uscexp.parboiled.extension.util.IStack;
 
 /**
- * Command implementation for the <code>PropertyFileParser</code> rule: arrayBlock.
+ * Command implementation for the <code>PropertyFileParser</code> rule:
+ * arrayBlock.
  */
 public class AstArrayBlockTreeNode<V> extends AstBaseCommandTreeNode<V> {
 
@@ -17,7 +18,7 @@ public class AstArrayBlockTreeNode<V> extends AstBaseCommandTreeNode<V> {
 
 	@Override
 	protected void interpretAfterChilds(Long id)
-		throws Exception {
+			throws Exception {
 		super.interpretAfterChilds(id);
 		IStack<Object> stack = processStore.getStack();
 		PropertyStruct arrayStruct = (PropertyStruct) stack.pop();

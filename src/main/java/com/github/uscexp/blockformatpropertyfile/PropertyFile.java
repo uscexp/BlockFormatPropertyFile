@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2014 by haui - all rights reserved
+ * Copyright (C) 2014 - 2018 by haui - all rights reserved
  */
 package com.github.uscexp.blockformatpropertyfile;
 
@@ -8,13 +8,21 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
 import com.github.uscexp.blockformatpropertyfile.exception.PropertyFileException;
+import com.github.uscexp.blockformatpropertyfile.exception.SchemaValidationException;
 import com.github.uscexp.blockformatpropertyfile.interpreter.PropertyFileInterpreter;
+import com.github.uscexp.blockformatpropertyfile.schemavalidation.LogLevel;
+import com.github.uscexp.blockformatpropertyfile.schemavalidation.PropertyFileValidation;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 
@@ -54,14 +62,22 @@ import com.google.common.collect.ListMultimap;
  */
 public class PropertyFile extends PropertyStruct {
 
+	private static Logger logger = Logger.getLogger(PropertyFile.class.getName());
+
+	private static final String SCHEMA_TYPE = "type";
+
 	private static final long serialVersionUID = -3242799117189872538L;
 
-	private static final Charset DEFAULT_ENCODING = Charset.forName("UTF-8");
+	public static final Charset DEFAULT_ENCODING = Charset.forName("UTF-8");
+
+	/** map which contains the schema elements by element name. */
+	protected Map<String, PropertyStruct> schemaMap;
 
 	/** map which contains the elements by type. */
 	protected ListMultimap<String, PropertyStruct> typesMap;
 
 	protected boolean readOnly = true;
+	protected URI schemaFile;
 	protected URI fileRead;
 	protected URI fileSave;
 	protected Charset encoding;
@@ -75,8 +91,13 @@ public class PropertyFile extends PropertyStruct {
 	}
 
 	public PropertyFile(URI fileRead, URI fileSave, Charset encoding, boolean readOnly) {
+		this(null, fileRead, fileSave, encoding, readOnly);
+	}
+
+	public PropertyFile(URI schemaFile, URI fileRead, URI fileSave, Charset encoding, boolean readOnly) {
 		super("root", "root");
 		typesMap = ArrayListMultimap.create();
+		this.schemaFile = schemaFile;
 		this.readOnly = readOnly;
 		this.fileRead = fileRead;
 		this.fileSave = fileSave;
@@ -88,18 +109,63 @@ public class PropertyFile extends PropertyStruct {
 		return typesMap;
 	}
 
+	public Map<String, PropertyStruct> getSchemaMap() {
+		return schemaMap;
+	}
+
 	public void load()
 			throws PropertyFileException {
 		try {
+			if (schemaFile != null) {
+				PropertyFile schema = createSchemaPropertyFile();
+				schema.load();
+
+				Set<String> types = schema.getTypesMap().keySet();
+				Set<String> typesNotPermitted = types.stream().filter(t -> !t.equals(SCHEMA_TYPE)).collect(Collectors.toSet());
+				if (typesNotPermitted != null && !typesNotPermitted.isEmpty()) {
+					throw new SchemaValidationException("schema contains wrong types, only 'type' is permitted");
+				}
+				List<PropertyStruct> elementsByType = schema.getElementsByType(SCHEMA_TYPE);
+				schemaMap = new HashMap<>();
+				elementsByType.forEach(e -> schemaMap.put(e.getName(), e));
+			}
 			String input = readFile();
 
 			PropertyFileInterpreter.getInstance().execute(input, this);
+
+			if (schemaMap != null) {
+				PropertyFileValidation validation = new PropertyFileValidation(schemaMap, typesMap);
+				ListMultimap<LogLevel, String> validationResult = validation.validate();
+
+				List<String> infos = validationResult.get(LogLevel.Info);
+
+				if (infos != null && !infos.isEmpty()) {
+					infos.forEach(i -> logger.info(i));
+				}
+
+				List<String> warnings = validationResult.get(LogLevel.Warning);
+
+				if (warnings != null && !warnings.isEmpty()) {
+					warnings.forEach(w -> logger.warning(w));
+				}
+
+				List<String> errors = validationResult.get(LogLevel.Error);
+
+				if (errors != null && !errors.isEmpty()) {
+					errors.forEach(e -> logger.severe(e));
+					throw new SchemaValidationException(errors.toString());
+				}
+			}
 		} catch (Exception e) {
 			throw new PropertyFileException("PropertyFile loading error!", e);
 		}
 	}
 
-	private String readFile()
+	protected PropertyFile createSchemaPropertyFile() {
+		return new PropertyFile(schemaFile, encoding, true);
+	}
+
+	protected String readFile()
 			throws IOException {
 		byte[] encoded = Files.readAllBytes(Paths.get(fileRead));
 		return new String(encoded, encoding);
