@@ -10,6 +10,7 @@ type type
   	  varname4 = { "boolean?" };
   	  varname5 = { "long?:[0-4]*" };
   	  varname6 = { "string?" };
+  	  varname7 = { "date?" };
   	}
   };
   varname4

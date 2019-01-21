@@ -51,6 +51,15 @@ public class PropertyFileParser
 		return ZeroOrMore(Sequence(TestNot(doubleQuote()), Character()));
 	}
 
+	@AstCommand
+	public Rule dateLiteral() {
+		return Sequence(ANGLEOPEN(), debug(getContext()), date(), ANGLECLOSE(), S());
+	}
+
+	public Rule date() {
+		return ZeroOrMore(Sequence(TestNot(ANGLEOPEN()), TestNot(ANGLECLOSE()), Character()));
+	}
+
 	public Rule charLiteral() {
 		return Sequence(quote(), Character(), quote(), S());
 	}
@@ -70,6 +79,14 @@ public class PropertyFileParser
 
 	public Rule SQUAREOPEN() {
 		return Sequence(Ch('['), S());
+	}
+
+	public Rule ANGLECLOSE() {
+		return Sequence(Ch('>'), S());
+	}
+
+	public Rule ANGLEOPEN() {
+		return Sequence(Ch('<'), S());
 	}
 
 	@AstCommand
@@ -164,12 +181,13 @@ public class PropertyFileParser
 	@AstCommand
 	public Rule arrayValue() {
 		return FirstOf(Sequence(integerLiteral(), ZeroOrMore(Sequence(COMMA(), integerLiteral()))), Sequence(floatingPointLiteral(), ZeroOrMore(Sequence(COMMA(), floatingPointLiteral()))),
-				Sequence(stringLiteral(), ZeroOrMore(Sequence(COMMA(), stringLiteral()))), Sequence(booleanLiteral(), ZeroOrMore(Sequence(COMMA(), booleanLiteral()))),
-				Sequence(arrayInitialization(), ZeroOrMore(Sequence(COMMA(), arrayInitialization()))), Sequence(arrayBlock(), ZeroOrMore(Sequence(COMMA(), arrayBlock()))));
+				Sequence(stringLiteral(), ZeroOrMore(Sequence(COMMA(), stringLiteral()))), Sequence(dateLiteral(), ZeroOrMore(Sequence(COMMA(), dateLiteral()))),
+				Sequence(booleanLiteral(), ZeroOrMore(Sequence(COMMA(), booleanLiteral()))), Sequence(arrayInitialization(), ZeroOrMore(Sequence(COMMA(), arrayInitialization()))),
+				Sequence(arrayBlock(), ZeroOrMore(Sequence(COMMA(), arrayBlock()))));
 	}
 
 	public Rule value() {
-		return FirstOf(floatingPointLiteral(), integerLiteral(), stringLiteral(), booleanLiteral(), arrayInitialization());
+		return FirstOf(floatingPointLiteral(), integerLiteral(), stringLiteral(), dateLiteral(), booleanLiteral(), arrayInitialization());
 	}
 
 	@AstCommand

@@ -151,7 +151,9 @@ public class PropertyFileValidation {
 
 		public boolean matches(Object value) {
 			String valueToValidate;
-			if (value instanceof String) {
+			if (value instanceof ValidateableDate) {
+				valueToValidate = ((ValidateableDate) value).getStringRepresentation();
+			} else if (value instanceof String) {
 				valueToValidate = (String) value;
 			} else {
 				valueToValidate = value.toString();

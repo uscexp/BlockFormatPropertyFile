@@ -18,11 +18,16 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
+import java.util.Calendar;
+import java.util.Date;
+
+import javax.xml.bind.DatatypeConverter;
 
 import org.junit.Test;
 
 import com.github.uscexp.blockformatpropertyfile.exception.PropertyFileException;
 import com.github.uscexp.blockformatpropertyfile.exception.SchemaValidationException;
+import com.github.uscexp.blockformatpropertyfile.schemavalidation.ValidateableDate;
 
 /**
  * @author haui
@@ -76,8 +81,30 @@ public class PropertyFileTest {
 		strings[1] = "geht das so";
 		strings[2] = "und mit";
 		expected.put("varname6", strings);
+		Calendar calendar = Calendar.getInstance();
+		calendar.set(Calendar.MILLISECOND, 0);
+		calendar.set(Calendar.SECOND, 0);
+		calendar.set(Calendar.MINUTE, 0);
+		calendar.set(Calendar.HOUR_OF_DAY, 0);
+		ValidateableDate[] dates = new ValidateableDate[3];
+		calendar.set(Calendar.YEAR, 2001);
+		calendar.set(Calendar.MONTH, 0);
+		calendar.set(Calendar.DAY_OF_MONTH, 1);
+		dates[0] = new ValidateableDate("2001-01-01", calendar.getTimeInMillis());
+		calendar.set(Calendar.YEAR, 2002);
+		calendar.set(Calendar.MONTH, 1);
+		calendar.set(Calendar.DAY_OF_MONTH, 2);
+		dates[1] = new ValidateableDate("2002-02-02", calendar.getTimeInMillis());
+		calendar.set(Calendar.YEAR, 2003);
+		calendar.set(Calendar.MONTH, 2);
+		calendar.set(Calendar.DAY_OF_MONTH, 3);
+		dates[2] = new ValidateableDate("2003-03-03", calendar.getTimeInMillis());
+		expected.put("varname7", dates);
 		assertEquals(expected.get("varname1"), ((PropertyStruct) pStructs[0]).get("varname1"));
 		assertEquals(((Object[]) expected.get("varname6"))[0], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname6"))[0]);
+		assertEquals(((ValidateableDate[]) expected.get("varname7"))[0].getStringRepresentation(), ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[0]);
+		assertEquals(((ValidateableDate[]) expected.get("varname7"))[1], new ValidateableDate(((String) ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[1]),
+				DatatypeConverter.parseDate((((String) ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[1]))).getTimeInMillis()));
 		assertEquals(10.0f, propertyFile.floatValue("elementname.varname1"), 0.0f);
 		assertEquals(10.0d, propertyFile.doubleValue("elementname.varname1"), 0.0d);
 		assertEquals(5, propertyFile.intValue("elementname.varname3[0].varname2"));
@@ -228,6 +255,36 @@ public class PropertyFileTest {
 		spyPropertyFile.load();
 
 		assertThat(spyPropertyFile.get("a.var1"), instanceOf(String.class));
+	}
+
+	@Test
+	public void testValidationDateWithTimeVar() throws Exception {
+		String schema = "type elementType {\n"
+				+ "  var1 = \"date\";\n"
+				+ "}";
+		String properties = "elementType a {\n"
+				+ "  var1 = <2012-04-23T18:25:43.511Z>;\n"
+				+ "}";
+		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+
+		spyPropertyFile.load();
+
+		assertThat(spyPropertyFile.get("a.var1"), instanceOf(Date.class));
+	}
+
+	@Test
+	public void testValidationDateVar() throws Exception {
+		String schema = "type elementType {\n"
+				+ "  var1 = \"date:^\\\\d{4}-\\\\d{2}-\\\\d{2}$\";\n"
+				+ "}";
+		String properties = "elementType a {\n"
+				+ "  var1 = <2012-04-23>;\n"
+				+ "}";
+		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+
+		spyPropertyFile.load();
+
+		assertThat(spyPropertyFile.get("a.var1"), instanceOf(Date.class));
 	}
 
 	@Test

@@ -3,7 +3,7 @@ package com.github.uscexp.blockformatpropertyfile.schemavalidation;
 import java.util.Arrays;
 
 public enum PropertyType {
-	STRING("string", String.class), LONG("long", Long.class), DOUBLE("double", Double.class), BOOLEAN("boolean", Boolean.class);
+	STRING("string", String.class), DATE("date", ValidateableDate.class), LONG("long", Long.class), DOUBLE("double", Double.class), BOOLEAN("boolean", Boolean.class);
 
 	private String typeName;
 	private Class<?> type;
