@@ -38,7 +38,7 @@ type elementname  // element type and name
       varname4 = {true, false, true}; // Array (Vector) of Booleans
       varname5 = {1, 2, 4, 3};  // Array (Vector) of Longs
       varname6 = {"bla bla", "geht das so", "und mit"};  // Array (Vector) of Strings
-      varname7 = {"2001-01-01", "2002-02-02", "2003-03-03"};  // Array (Vector) of Dates
+      varname7 = {<2001-01-01>, <2002-02-02>, <2003-03-03>};  // Array (Vector) of Dates
     }
     ,
     {

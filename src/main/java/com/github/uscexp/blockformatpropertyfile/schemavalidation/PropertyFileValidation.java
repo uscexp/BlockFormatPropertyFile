@@ -1,8 +1,11 @@
 package com.github.uscexp.blockformatpropertyfile.schemavalidation;
 
 import java.lang.reflect.Array;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -130,14 +133,12 @@ public class PropertyFileValidation {
 	class ValidationStruct {
 		public boolean optional;
 		public PropertyType type;
-		public Pattern regExPattern = Pattern.compile(".*");;
+		public String pattern = ".*";
+		public String locale = null;
+		public Pattern regExPattern = Pattern.compile(pattern);;
 
 		public ValidationStruct(String schemaValue) {
 			String[] split = schemaValue.split(":", 2);
-			if (split.length == 2) {
-				String pattern = split[1].replaceAll("\\\\\\\\", "\\\\");
-				regExPattern = Pattern.compile(pattern);
-			}
 			String typeString = null;
 			if (split[0].endsWith("?")) {
 				optional = true;
@@ -147,12 +148,38 @@ public class PropertyFileValidation {
 				typeString = split[0];
 			}
 			type = PropertyType.valueFromTypeName(typeString);
+			if (type == PropertyType.DATE) {
+				if (split.length == 2) {
+					pattern = split[1];
+				} else if (split.length == 3) {
+					pattern = split[1];
+					locale = split[2];
+				}
+			} else {
+				if (split.length == 2) {
+					pattern = split[1].replaceAll("\\\\\\\\", "\\\\");
+					regExPattern = Pattern.compile(pattern);
+				}
+			}
 		}
 
 		public boolean matches(Object value) {
 			String valueToValidate;
 			if (value instanceof ValidateableDate) {
 				valueToValidate = ((ValidateableDate) value).getStringRepresentation();
+				DateFormat dateFormat = null;
+				if (locale != null) {
+					try {
+						dateFormat = new SimpleDateFormat(pattern, Locale.forLanguageTag(locale));
+						if (dateFormat.parse(valueToValidate) != null) {
+							return true;
+						}
+					} catch (Exception e) {
+						return false;
+					}
+				} else {
+
+				}
 			} else if (value instanceof String) {
 				valueToValidate = (String) value;
 			} else {

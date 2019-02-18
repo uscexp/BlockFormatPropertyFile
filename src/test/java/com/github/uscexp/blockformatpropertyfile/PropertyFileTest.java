@@ -21,8 +21,6 @@ import java.nio.charset.Charset;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.xml.bind.DatatypeConverter;
-
 import org.junit.Test;
 
 import com.github.uscexp.blockformatpropertyfile.exception.PropertyFileException;
@@ -102,9 +100,9 @@ public class PropertyFileTest {
 		expected.put("varname7", dates);
 		assertEquals(expected.get("varname1"), ((PropertyStruct) pStructs[0]).get("varname1"));
 		assertEquals(((Object[]) expected.get("varname6"))[0], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname6"))[0]);
-		assertEquals(((ValidateableDate[]) expected.get("varname7"))[0].getStringRepresentation(), ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[0]);
-		assertEquals(((ValidateableDate[]) expected.get("varname7"))[1], new ValidateableDate(((String) ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[1]),
-				DatatypeConverter.parseDate((((String) ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[1]))).getTimeInMillis()));
+		assertEquals(((ValidateableDate[]) expected.get("varname7"))[0], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[0]);
+		assertEquals(((ValidateableDate[]) expected.get("varname7"))[1], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[1]);
+		assertEquals(((ValidateableDate[]) expected.get("varname7"))[2], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[2]);
 		assertEquals(10.0f, propertyFile.floatValue("elementname.varname1"), 0.0f);
 		assertEquals(10.0d, propertyFile.doubleValue("elementname.varname1"), 0.0d);
 		assertEquals(5, propertyFile.intValue("elementname.varname3[0].varname2"));
@@ -275,7 +273,7 @@ public class PropertyFileTest {
 	@Test
 	public void testValidationDateVar() throws Exception {
 		String schema = "type elementType {\n"
-				+ "  var1 = \"date:^\\\\d{4}-\\\\d{2}-\\\\d{2}$\";\n"
+				+ "  var1 = \"date:yyyy-MM-dd\";\n"
 				+ "}";
 		String properties = "elementType a {\n"
 				+ "  var1 = <2012-04-23>;\n"
