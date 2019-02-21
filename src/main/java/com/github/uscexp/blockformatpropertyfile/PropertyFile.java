@@ -156,6 +156,9 @@ public class PropertyFile extends PropertyStruct {
 					throw new SchemaValidationException(errors.toString());
 				}
 			}
+
+			PropertyFilePostProcessor propertyFilePostProcessor = new PropertyFilePostProcessor(this);
+			propertyFilePostProcessor.postProcess();
 		} catch (Exception e) {
 			throw new PropertyFileException("PropertyFile loading error!", e);
 		}

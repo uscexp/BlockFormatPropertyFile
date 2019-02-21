@@ -44,7 +44,7 @@ public class PropertyFileParser
 
 	@AstCommand
 	public Rule stringLiteral() {
-		return Sequence(doubleQuote(), debug(getContext()), str(), doubleQuote(), S());
+		return Sequence(doubleQuote(), str(), doubleQuote(), S());
 	}
 
 	public Rule str() {
@@ -53,11 +53,16 @@ public class PropertyFileParser
 
 	@AstCommand
 	public Rule dateLiteral() {
-		return Sequence(ANGLEOPEN(), debug(getContext()), date(), ANGLECLOSE(), S());
+		return Sequence(ANGLEOPEN(), date(), ANGLECLOSE(), S());
 	}
 
 	public Rule date() {
 		return ZeroOrMore(Sequence(TestNot(ANGLEOPEN()), TestNot(ANGLECLOSE()), Character()));
+	}
+
+	@AstCommand
+	public Rule typeLiteral() {
+		return Sequence(SQUAREOPEN(), IDENTIFIER(), SQUARECLOSE(), S());
 	}
 
 	public Rule charLiteral() {
@@ -182,12 +187,12 @@ public class PropertyFileParser
 	public Rule arrayValue() {
 		return FirstOf(Sequence(integerLiteral(), ZeroOrMore(Sequence(COMMA(), integerLiteral()))), Sequence(floatingPointLiteral(), ZeroOrMore(Sequence(COMMA(), floatingPointLiteral()))),
 				Sequence(stringLiteral(), ZeroOrMore(Sequence(COMMA(), stringLiteral()))), Sequence(dateLiteral(), ZeroOrMore(Sequence(COMMA(), dateLiteral()))),
-				Sequence(booleanLiteral(), ZeroOrMore(Sequence(COMMA(), booleanLiteral()))), Sequence(arrayInitialization(), ZeroOrMore(Sequence(COMMA(), arrayInitialization()))),
-				Sequence(arrayBlock(), ZeroOrMore(Sequence(COMMA(), arrayBlock()))));
+				Sequence(typeLiteral(), ZeroOrMore(Sequence(COMMA(), typeLiteral()))), Sequence(booleanLiteral(), ZeroOrMore(Sequence(COMMA(), booleanLiteral()))),
+				Sequence(arrayInitialization(), ZeroOrMore(Sequence(COMMA(), arrayInitialization()))), Sequence(arrayBlock(), ZeroOrMore(Sequence(COMMA(), arrayBlock()))));
 	}
 
 	public Rule value() {
-		return FirstOf(floatingPointLiteral(), integerLiteral(), stringLiteral(), dateLiteral(), booleanLiteral(), arrayInitialization());
+		return FirstOf(floatingPointLiteral(), integerLiteral(), stringLiteral(), dateLiteral(), typeLiteral(), booleanLiteral(), arrayInitialization());
 	}
 
 	@AstCommand

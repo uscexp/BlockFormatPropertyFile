@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -62,24 +63,24 @@ public class PropertyFileValidation {
 
 	private void validateSchema(String path, String key, Object value) {
 		if (value.getClass().isAssignableFrom(String.class)) {
-			String[] split = ((String) value).split(":", 2);
+			String[] split = ((String) value).split(":");
 			if (split.length > 1 && split[0].equals(PropertyType.BOOLEAN.getTypeName())) {
-				errors.put(LogLevel.Error, String.format("%s = %s; Schema value of type boolean can not define a regEx", path, value));
+				errors.put(LogLevel.Error, String.format("%s = %s; Schema value of type boolean can not define a pattern", path, value));
 			}
 		} else if (value.getClass().isAssignableFrom(Number.class)) {
-			errors.put(LogLevel.Error, String.format("%s = %s; Schema value can not be a number, it must be a string in format \"string:<regEx>\"", path, value));
+			errors.put(LogLevel.Error, String.format("%s = %s; Schema value can not be a number, it must be a string in format \"string:<option=optionValue>\"", path, value));
 		} else if (value.getClass().isAssignableFrom(PropertyStruct.class)) {
 			validateSchema(key, (PropertyStruct) value);
 		} else if (value.getClass().isArray()) {
 			if (Array.getLength(value) != 1) {
-				errors.put(LogLevel.Error, String.format("%s = { %s }; Schema array value can not have more than 1 value, it must be a string in format \"string:<regEx>\"", path, value));
+				errors.put(LogLevel.Error, String.format("%s = { %s }; Schema array value can not have more than 1 value, it must be a string in format \"string:<option=optionValue>\"", path, value));
 			} else {
 				validateSchema(path, key, ((Object[]) value)[0]);
 			}
 		} else if (value.getClass().isAssignableFrom(Boolean.class)) {
-			errors.put(LogLevel.Error, String.format("%s = { %s }; Schema value can not be a boolean, it must be a string in format \"string:<regEx>\"", path, value));
+			errors.put(LogLevel.Error, String.format("%s = { %s }; Schema value can not be a boolean, it must be a string in format \"string:<option=optionValue>\"", path, value));
 		} else {
-			errors.put(LogLevel.Error, String.format("%s = %s; Schema value is not a string, it must be a string in format \"string:<regEx>\"", path, value));
+			errors.put(LogLevel.Error, String.format("%s = %s; Schema value is not a string, it must be a string in format \"string:<option=optionValue>\"", path, value));
 		}
 	}
 
@@ -121,11 +122,11 @@ public class PropertyFileValidation {
 				errors.put(LogLevel.Error, String.format("%s is mandatory", key));
 			}
 		} else {
-			if (!value.getClass().isAssignableFrom(validationStruct.type.getType())) {
+			if (!validationStruct.type.getType().isAssignableFrom(value.getClass())) {
 				errors.put(LogLevel.Error, String.format("%s = %s; value has wrong type, it must be a %s", path, value, validationStruct.type.getTypeName()));
 			}
 			if (!validationStruct.matches(value)) {
-				errors.put(LogLevel.Error, String.format("%s = %s; value does not match regEx %s", path, value, validationStruct.regExPattern.toString()));
+				errors.put(LogLevel.Error, String.format("%s = %s; value does not match pattern %s", path, value, validationStruct.pattern));
 			}
 		}
 	}
@@ -133,12 +134,13 @@ public class PropertyFileValidation {
 	class ValidationStruct {
 		public boolean optional;
 		public PropertyType type;
-		public String pattern = ".*";
+		public String reference = null;
+		public String pattern = null;
 		public String locale = null;
-		public Pattern regExPattern = Pattern.compile(pattern);;
+		public Pattern regExPattern = null;
 
 		public ValidationStruct(String schemaValue) {
-			String[] split = schemaValue.split(":", 2);
+			String[] split = schemaValue.split(":");
 			String typeString = null;
 			if (split[0].endsWith("?")) {
 				optional = true;
@@ -148,44 +150,72 @@ public class PropertyFileValidation {
 				typeString = split[0];
 			}
 			type = PropertyType.valueFromTypeName(typeString);
+			Optional<String> pattern = ValidationOption.PATTERN.getOption(split);
 			if (type == PropertyType.DATE) {
-				if (split.length == 2) {
-					pattern = split[1];
-				} else if (split.length == 3) {
-					pattern = split[1];
-					locale = split[2];
+				Optional<String> locale = ValidationOption.LOCALE.getOption(split);
+				if (pattern.isPresent()) {
+					this.pattern = pattern.get();
+				}
+				if (locale.isPresent()) {
+					this.locale = locale.get();
+				}
+			} else if (type == PropertyType.TYPE) {
+				Optional<String> ref = ValidationOption.REFERENCE.getOption(split);
+				if (ref.isPresent()) {
+					this.reference = ref.get();
+				} else {
+					errors.put(LogLevel.Error, String.format("Option '%s' is mandatory for type '%s'", ValidationOption.REFERENCE.getOption(), PropertyType.TYPE.getTypeName()));
 				}
 			} else {
-				if (split.length == 2) {
-					pattern = split[1].replaceAll("\\\\\\\\", "\\\\");
-					regExPattern = Pattern.compile(pattern);
+				if (pattern.isPresent()) {
+					this.pattern = pattern.get().replaceAll("\\\\\\\\", "\\\\");
+					this.regExPattern = Pattern.compile(this.pattern);
 				}
 			}
 		}
 
 		public boolean matches(Object value) {
-			String valueToValidate;
-			if (value instanceof ValidateableDate) {
-				valueToValidate = ((ValidateableDate) value).getStringRepresentation();
-				DateFormat dateFormat = null;
-				if (locale != null) {
-					try {
+			boolean result = true;
+			if (pattern != null) {
+				String valueToValidate;
+				if (value instanceof ValidateableDate) {
+					valueToValidate = ((ValidateableDate) value).getStringRepresentation();
+					DateFormat dateFormat = null;
+					if (locale != null) {
 						dateFormat = new SimpleDateFormat(pattern, Locale.forLanguageTag(locale));
+					} else {
+						dateFormat = new SimpleDateFormat(pattern);
+					}
+					try {
 						if (dateFormat.parse(valueToValidate) != null) {
-							return true;
+							result = true;
 						}
 					} catch (Exception e) {
-						return false;
+						result = false;
+					}
+				} else if (value instanceof String) {
+					valueToValidate = (String) value;
+					if (regExPattern != null) {
+						result = regExPattern.matcher(valueToValidate).matches();
+					} else {
+						result = false;
 					}
 				} else {
-
+					valueToValidate = value.toString();
+					if (regExPattern != null) {
+						result = regExPattern.matcher(valueToValidate).matches();
+					} else {
+						result = false;
+					}
 				}
-			} else if (value instanceof String) {
-				valueToValidate = (String) value;
-			} else {
-				valueToValidate = value.toString();
+			} else if (reference != null) {
+				if (value instanceof Reference) {
+					if (reference != null) {
+						result = schemaMap.get(reference) != null;
+					}
+				}
 			}
-			return regExPattern.matcher(valueToValidate).matches();
+			return result;
 		}
 	}
 }

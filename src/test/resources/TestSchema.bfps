@@ -1,14 +1,14 @@
 type type
 {
-  varname1 = "double:[+-]?([0-9]*[.])?[0-9]+";
+  varname1 = "double:pattern=[+-]?([0-9]*[.])?[0-9]+";
   varname2 = "string?";		// optional property of string type
   varname3 = {
   	{
   	  varname1 = "boolean";
-  	  varname2 = "long?:\\d{1,4}";
+  	  varname2 = "long?:pattern=\\d{1,4}";
   	  varname3 = "string?";
   	  varname4 = { "boolean?" };
-  	  varname5 = { "long?:[0-4]*" };
+  	  varname5 = { "long?:pattern=[0-4]*" };
   	  varname6 = { "string?" };
   	  varname7 = { "date?" };
   	}

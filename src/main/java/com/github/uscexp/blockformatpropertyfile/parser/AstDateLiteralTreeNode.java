@@ -3,6 +3,7 @@
  */
 package com.github.uscexp.blockformatpropertyfile.parser;
 
+import java.time.ZonedDateTime;
 import java.util.Calendar;
 
 import javax.xml.bind.DatatypeConverter;
@@ -26,7 +27,7 @@ public class AstDateLiteralTreeNode<V> extends AstBaseCommandTreeNode<V> {
 		value = value.trim();
 		String realValue = value.substring(1, value.length() - 1);
 		Calendar calendar = DatatypeConverter.parseDateTime(realValue);
-		processStore.getStack().push(new ValidateableDate(realValue, calendar.getTime().getTime()));
+		processStore.getStack().push(new ValidateableDate(realValue, ZonedDateTime.ofInstant(calendar.getTime().toInstant(), calendar.getTimeZone().toZoneId())));
 	}
 
 }

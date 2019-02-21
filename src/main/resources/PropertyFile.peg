@@ -8,11 +8,12 @@ VariableName <- IDENTIFIER S
 VariableDefinition <- Value SEMICOLON
 ArrayInitialization <- CURLYOPEN ArrayValue? S CURLYCLOSE
 Struct <- VariableName Block
-Value <- FloatingPointLiteral / IntegerLiteral / StringLiteral / DateLiteral / BooleanLiteral / ArrayInitialization
+Value <- FloatingPointLiteral / IntegerLiteral / StringLiteral / DateLiteral / TypeLiteral / BooleanLiteral / ArrayInitialization
 ArrayValue <- IntegerLiteral (COMMA IntegerLiteral)*
 	/ FloatingPointLiteral (COMMA FloatingPointLiteral)*
 	/ StringLiteral (COMMA StringLiteral)*
 	/ DateLiteral (COMMA DateLiteral)*
+	/ TypeLiteral (COMMA TypeLiteral)*
 	/ BooleanLiteral (COMMA BooleanLiteral)*
 	/ ArrayInitialization (COMMA ArrayInitialization)*
 	/ ArrayBlock (COMMA ArrayBlock)*
@@ -58,8 +59,9 @@ ANGLECLOSE <- '>' S
 EQUALS <- '=' S
 BooleanLiteral <- TRUE / FALSE
 CharLiteral <- Quote Character Quote S
+TypeLiteral <- SQUAREOPEN IDENTIFIER SQUARECLOSE S
 Date <- (!ANGLEOPEN !ANGLECLOSE Character)*
-DateLiteral <- ANGLEOPEN Character ANGLECLOSE S
+DateLiteral <- ANGLEOPEN Date ANGLECLOSE S
 Str <- (!DoubleQuote Character)*
 StringLiteral <- DoubleQuote Str DoubleQuote S
 TRUE <- "true" S

@@ -4,6 +4,7 @@
 package com.github.uscexp.blockformatpropertyfile;
 
 import static org.hamcrest.CoreMatchers.endsWith;
+import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertEquals;
@@ -18,8 +19,8 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
-import java.util.Calendar;
-import java.util.Date;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 import org.junit.Test;
 
@@ -79,24 +80,10 @@ public class PropertyFileTest {
 		strings[1] = "geht das so";
 		strings[2] = "und mit";
 		expected.put("varname6", strings);
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.MILLISECOND, 0);
-		calendar.set(Calendar.SECOND, 0);
-		calendar.set(Calendar.MINUTE, 0);
-		calendar.set(Calendar.HOUR_OF_DAY, 0);
 		ValidateableDate[] dates = new ValidateableDate[3];
-		calendar.set(Calendar.YEAR, 2001);
-		calendar.set(Calendar.MONTH, 0);
-		calendar.set(Calendar.DAY_OF_MONTH, 1);
-		dates[0] = new ValidateableDate("2001-01-01", calendar.getTimeInMillis());
-		calendar.set(Calendar.YEAR, 2002);
-		calendar.set(Calendar.MONTH, 1);
-		calendar.set(Calendar.DAY_OF_MONTH, 2);
-		dates[1] = new ValidateableDate("2002-02-02", calendar.getTimeInMillis());
-		calendar.set(Calendar.YEAR, 2003);
-		calendar.set(Calendar.MONTH, 2);
-		calendar.set(Calendar.DAY_OF_MONTH, 3);
-		dates[2] = new ValidateableDate("2003-03-03", calendar.getTimeInMillis());
+		dates[0] = new ValidateableDate("2001-01-01", ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()));
+		dates[1] = new ValidateableDate("2002-02-02", ZonedDateTime.of(2002, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()));
+		dates[2] = new ValidateableDate("2003-03-03", ZonedDateTime.of(2003, 3, 3, 0, 0, 0, 0, ZoneId.systemDefault()));
 		expected.put("varname7", dates);
 		assertEquals(expected.get("varname1"), ((PropertyStruct) pStructs[0]).get("varname1"));
 		assertEquals(((Object[]) expected.get("varname6"))[0], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname6"))[0]);
@@ -180,7 +167,7 @@ public class PropertyFileTest {
 	@Test
 	public void testValidationDoubleVar() throws Exception {
 		String schema = "type elementType {\n"
-				+ "  var1 = \"double:[+-]?([0-9]*[.])?[0-9]+\";\n"
+				+ "  var1 = \"double:pattern=[+-]?([0-9]*[.])?[0-9]+\";\n"
 				+ "}";
 		String properties = "elementType a {\n"
 				+ "  var1 = 10.0;\n"
@@ -195,7 +182,7 @@ public class PropertyFileTest {
 	@Test
 	public void testValidationIntegerVar() throws Exception {
 		String schema = "type elementType {\n"
-				+ "  var1 = \"long:\\\\d{4}\";\n"
+				+ "  var1 = \"long:pattern=\\\\d{4}\";\n"
 				+ "}";
 		String properties = "elementType a {\n"
 				+ "  var1 = 1111;\n"
@@ -210,19 +197,22 @@ public class PropertyFileTest {
 	@Test
 	public void testValidationIntegerVarDoesNotMatchPattern() throws Exception {
 		String schema = "type elementType {\n"
-				+ "  var1 = \"long:\\\\d{4}\";\n"
+				+ "  var1 = \"long:pattern=\\\\d{4}\";\n"
 				+ "}";
 		String properties = "elementType a {\n"
 				+ "  var1 = 111111;\n"
 				+ "}";
 		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+		Exception ex = null;
 
 		try {
 			spyPropertyFile.load();
 		} catch (PropertyFileException e) {
 			assertThat(e.getCause(), instanceOf(SchemaValidationException.class));
-			assertThat(e.getCause().getMessage(), endsWith("value does not match regEx \\d{4}]"));
+			assertThat(e.getCause().getMessage(), endsWith("value does not match pattern \\d{4}]"));
+			ex = e;
 		}
+		assertNotNull(ex);
 	}
 
 	@Test
@@ -267,13 +257,13 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), instanceOf(Date.class));
+		assertThat(spyPropertyFile.get("a.var1"), instanceOf(ZonedDateTime.class));
 	}
 
 	@Test
 	public void testValidationDateVar() throws Exception {
 		String schema = "type elementType {\n"
-				+ "  var1 = \"date:yyyy-MM-dd\";\n"
+				+ "  var1 = \"date:pattern=yyyy-MM-dd\";\n"
 				+ "}";
 		String properties = "elementType a {\n"
 				+ "  var1 = <2012-04-23>;\n"
@@ -282,7 +272,55 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), instanceOf(Date.class));
+		assertThat(spyPropertyFile.get("a.var1"), instanceOf(ZonedDateTime.class));
+	}
+
+	@Test
+	public void testValidationTypeVar() throws Exception {
+		String schema = "type elementType {\n"
+				+ "  var1 = \"type:reference=anotherType\";\n"
+				+ "}\n\n"
+				+ "type anotherType {\n"
+				+ "  var1 = \"boolean\";\n"
+				+ "}";
+		String properties = "elementType a {\n"
+				+ "  var1 = [b];\n"
+				+ "}\n\n"
+				+ "anotherType b {\n"
+				+ "  var1 = true;\n"
+				+ "}\n";
+		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+
+		spyPropertyFile.load();
+
+		assertThat(spyPropertyFile.get("a.var1"), instanceOf(PropertyStruct.class));
+	}
+
+	@Test
+	public void testValidationTypeVarMissingReferenceOption() throws Exception {
+		String schema = "type elementType {\n"
+				+ "  var1 = \"type\";\n"
+				+ "}\n\n"
+				+ "type anotherType {\n"
+				+ "  var1 = \"boolean\";\n"
+				+ "}";
+		String properties = "elementType a {\n"
+				+ "  var1 = [b];\n"
+				+ "}\n\n"
+				+ "anotherType b {\n"
+				+ "  var1 = true;\n"
+				+ "}\n";
+		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+		Exception ex = null;
+
+		try {
+			spyPropertyFile.load();
+		} catch (Exception e) {
+			assertThat(e.getCause(), instanceOf(SchemaValidationException.class));
+			assertThat(e.getCause().getMessage(), equalTo("[Option 'reference' is mandatory for type 'type']"));
+			ex = e;
+		}
+		assertNotNull(ex);
 	}
 
 	@Test
@@ -312,13 +350,16 @@ public class PropertyFileTest {
 				+ "  var2 = true;\n"
 				+ "}";
 		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+		Exception ex = null;
 
 		try {
 			spyPropertyFile.load();
 		} catch (PropertyFileException e) {
 			assertThat(e.getCause(), instanceOf(SchemaValidationException.class));
 			assertThat(e.getCause().getMessage(), endsWith("var1 is mandatory]"));
+			ex = e;
 		}
+		assertNotNull(ex);
 	}
 
 	@Test
@@ -345,13 +386,16 @@ public class PropertyFileTest {
 				+ "  var1 = { 1, 2 };\n"
 				+ "}";
 		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+		Exception ex = null;
 
 		try {
 			spyPropertyFile.load();
 		} catch (PropertyFileException e) {
 			assertThat(e.getCause(), instanceOf(SchemaValidationException.class));
 			assertThat(e.getCause().getMessage(), endsWith("var1[0] = 1; value has wrong type, it must be a string, var1[1] = 2; value has wrong type, it must be a string]"));
+			ex = e;
 		}
+		assertNotNull(ex);
 	}
 
 	@Test
@@ -410,12 +454,15 @@ public class PropertyFileTest {
 				"  }\r\n" +
 				"}";
 		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+		Exception ex = null;
 
 		try {
 			spyPropertyFile.load();
 		} catch (PropertyFileException e) {
 			assertThat(e.getCause(), instanceOf(SchemaValidationException.class));
 			assertThat(e.getCause().getMessage(), endsWith("varname1.varname3[0].varname1 = text; value has wrong type, it must be a boolean]"));
+			ex = e;
 		}
+		assertNotNull(ex);
 	}
 }
