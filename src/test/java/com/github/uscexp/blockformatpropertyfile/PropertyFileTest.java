@@ -47,49 +47,49 @@ public class PropertyFileTest {
 		System.out.println(propertyFile.toString());
 
 		assertEquals(1, propertyFile.getElementsByType("method").size());
-		PropertyStruct propertyStruct = (PropertyStruct) propertyFile.get("openFileToRead");
-		assertEquals("haui.app.splshell.util.HelperMethods", propertyStruct.get("type"));
-		assertEquals("createBufferedReader", propertyStruct.get("realMethod"));
-		assertEquals(true, propertyStruct.get("static"));
+		PropertyStruct propertyStruct = (PropertyStruct) propertyFile.get("openFileToRead", "");
+		assertEquals("haui.app.splshell.util.HelperMethods", propertyStruct.get("type", ""));
+		assertEquals("createBufferedReader", propertyStruct.get("realMethod", ""));
+		assertEquals(true, propertyStruct.get("static", ""));
 		Object[] values = { "string" };
-		Object[] actual = (Object[]) propertyStruct.get("realParams");
+		Object[] actual = (Object[]) propertyStruct.get("realParams", "");
 		assertEquals(values.length, actual.length);
 		assertEquals(values[0], actual[0]);
-		assertEquals("filereader", propertyStruct.get("returnType"));
+		assertEquals("filereader", propertyStruct.get("returnType", ""));
 
-		propertyStruct = (PropertyStruct) propertyFile.get("elementname");
-		Object[] pStructs = (Object[]) propertyStruct.get("varname3");
+		propertyStruct = (PropertyStruct) propertyFile.get("elementname", "");
+		Object[] pStructs = (Object[]) propertyStruct.get("varname3", "");
 		assertEquals(2, pStructs.length);
 		PropertyStruct expected = new PropertyStruct();
-		expected.put("varname1", true);
-		expected.put("varname2", 5);
-		expected.put("varname3", "so so");
+		expected.put("varname1", "", true);
+		expected.put("varname2", "", 5);
+		expected.put("varname3", "", "so so");
 		Boolean[] bools = new Boolean[3];
 		bools[0] = new Boolean(true);
 		bools[1] = new Boolean(false);
 		bools[2] = new Boolean(true);
-		expected.put("varname4", bools);
+		expected.put("varname4", "", bools);
 		Long[] longs = new Long[4];
 		longs[0] = 1L;
 		longs[1] = 2L;
 		longs[2] = 4L;
 		longs[3] = 3L;
-		expected.put("varname5", longs);
+		expected.put("varname5", "", longs);
 		String[] strings = new String[3];
 		strings[0] = "bla bla";
 		strings[1] = "geht das so";
 		strings[2] = "und mit";
-		expected.put("varname6", strings);
+		expected.put("varname6", "", strings);
 		ValidateableDate[] dates = new ValidateableDate[3];
 		dates[0] = new ValidateableDate("2001-01-01", ZonedDateTime.of(2001, 1, 1, 0, 0, 0, 0, ZoneId.systemDefault()));
 		dates[1] = new ValidateableDate("2002-02-02", ZonedDateTime.of(2002, 2, 2, 0, 0, 0, 0, ZoneId.systemDefault()));
 		dates[2] = new ValidateableDate("2003-03-03", ZonedDateTime.of(2003, 3, 3, 0, 0, 0, 0, ZoneId.systemDefault()));
-		expected.put("varname7", dates);
-		assertEquals(expected.get("varname1"), ((PropertyStruct) pStructs[0]).get("varname1"));
-		assertEquals(((Object[]) expected.get("varname6"))[0], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname6"))[0]);
-		assertEquals(((ValidateableDate[]) expected.get("varname7"))[0], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[0]);
-		assertEquals(((ValidateableDate[]) expected.get("varname7"))[1], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[1]);
-		assertEquals(((ValidateableDate[]) expected.get("varname7"))[2], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7"))[2]);
+		expected.put("varname7", "", dates);
+		assertEquals(expected.get("varname1", ""), ((PropertyStruct) pStructs[0]).get("varname1", ""));
+		assertEquals(((Object[]) expected.get("varname6", ""))[0], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname6", ""))[0]);
+		assertEquals(((ValidateableDate[]) expected.get("varname7", ""))[0], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7", ""))[0]);
+		assertEquals(((ValidateableDate[]) expected.get("varname7", ""))[1], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7", ""))[1]);
+		assertEquals(((ValidateableDate[]) expected.get("varname7", ""))[2], ((Object[]) ((PropertyStruct) pStructs[0]).get("varname7", ""))[2]);
 		assertEquals(10.0f, propertyFile.floatValue("elementname.varname1"), 0.0f);
 		assertEquals(10.0d, propertyFile.doubleValue("elementname.varname1"), 0.0d);
 		assertEquals(5, propertyFile.intValue("elementname.varname3[0].varname2"));
@@ -106,9 +106,9 @@ public class PropertyFileTest {
 		assertEquals(5.0f, propertyFile.floatValue("elementname.varname3[0].varname2"), 0.0f);
 		assertEquals(5.0d, propertyFile.doubleValue("elementname.varname3[0].varname2"), 0.0d);
 
-		assertEquals(strings[1], propertyFile.get("elementname.varname3[0].varname6[1]"));
-		assertEquals(3L, propertyFile.get("elementname.varname4.varname3.varname2.varname1"));
-		assertTrue(propertyFile.arrayValue("elementname.varname3") instanceof Object[]);
+		assertEquals(strings[1], propertyFile.get("elementname.varname3[0].varname6[1]", ""));
+		assertEquals(3L, propertyFile.get("elementname.varname4.varname3.varname2.varname1", ""));
+		assertTrue(propertyFile.arrayValue("elementname.varname3", "") instanceof Object[]);
 	}
 
 	@Test
@@ -176,7 +176,7 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), instanceOf(Double.class));
+		assertThat(spyPropertyFile.get("a.var1", ""), instanceOf(Double.class));
 	}
 
 	@Test
@@ -191,7 +191,7 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), instanceOf(Long.class));
+		assertThat(spyPropertyFile.get("a.var1", ""), instanceOf(Long.class));
 	}
 
 	@Test
@@ -227,7 +227,7 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), instanceOf(Boolean.class));
+		assertThat(spyPropertyFile.get("a.var1", ""), instanceOf(Boolean.class));
 	}
 
 	@Test
@@ -242,7 +242,44 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), instanceOf(String.class));
+		assertThat(spyPropertyFile.get("a.var1", ""), instanceOf(String.class));
+	}
+
+	@Test
+	public void testValidationStringVarWithNameSpace() throws Exception {
+		String schema = "type <name.space> elementType {\n"
+				+ "  var1 = \"string\";\n"
+				+ "}";
+		String properties = "elementType <name.space> a {\n"
+				+ "  var1 = \"text\";\n"
+				+ "}";
+		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+
+		spyPropertyFile.load();
+
+		assertThat(spyPropertyFile.get("a.var1", "name.space"), instanceOf(String.class));
+	}
+
+	@Test
+	public void testTwoElementsWithDifferentNameSpaces() throws Exception {
+		String schema = "type <name.space> elementType {\n"
+				+ "  var1 = \"string\";\n"
+				+ "}\n\n"
+				+ "type <name.space1> elementType {\n"
+				+ "  var1 = \"boolean\";\n"
+				+ "}";
+		String properties = "elementType <name.space> a {\n"
+				+ "  var1 = \"text\";\n"
+				+ "}\n\n"
+				+ "elementType <name.space1> a {\n"
+				+ "  var1 = true;\n"
+				+ "}";
+		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+
+		spyPropertyFile.load();
+
+		assertThat(spyPropertyFile.get("a.var1", "name.space"), instanceOf(String.class));
+		assertThat(spyPropertyFile.get("a.var1", "name.space1"), instanceOf(Boolean.class));
 	}
 
 	@Test
@@ -257,7 +294,7 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), instanceOf(ZonedDateTime.class));
+		assertThat(spyPropertyFile.get("a.var1", ""), instanceOf(ZonedDateTime.class));
 	}
 
 	@Test
@@ -272,7 +309,7 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), instanceOf(ZonedDateTime.class));
+		assertThat(spyPropertyFile.get("a.var1", ""), instanceOf(ZonedDateTime.class));
 	}
 
 	@Test
@@ -293,7 +330,84 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), instanceOf(PropertyStruct.class));
+		assertThat(spyPropertyFile.get("a.var1", ""), instanceOf(PropertyStruct.class));
+		assertThat(spyPropertyFile.get("a.var1.var1", ""), instanceOf(Boolean.class));
+	}
+
+	@Test
+	public void testValidationTypeVarWithNameSpace() throws Exception {
+		String schema = "type elementType {\n"
+				+ "  var1 = \"type:namespace=name.space:reference=anotherType\";\n"
+				+ "}\n\n"
+				+ "type <name.space> anotherType {\n"
+				+ "  var1 = \"boolean\";\n"
+				+ "}";
+		String properties = "elementType a {\n"
+				+ "  var1 = [name.space:b];\n"
+				+ "}\n\n"
+				+ "anotherType <name.space> b {\n"
+				+ "  var1 = true;\n"
+				+ "}\n";
+		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+
+		spyPropertyFile.load();
+
+		assertThat(spyPropertyFile.get("a.var1", ""), instanceOf(PropertyStruct.class));
+		assertThat(spyPropertyFile.get("a.var1.var1", ""), instanceOf(Boolean.class));
+	}
+
+	@Test
+	public void testValidationTypeVarWrongNameSpace() throws Exception {
+		String schema = "type elementType {\n"
+				+ "  var1 = \"type:namespace=name.space1:reference=anotherType\";\n"
+				+ "}\n\n"
+				+ "type <name.space> anotherType {\n"
+				+ "  var1 = \"boolean\";\n"
+				+ "}";
+		String properties = "elementType a {\n"
+				+ "  var1 = [name.space:b];\n"
+				+ "}\n\n"
+				+ "anotherType <name.space> b {\n"
+				+ "  var1 = true;\n"
+				+ "}\n";
+		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+		Exception ex = null;
+
+		try {
+			spyPropertyFile.load();
+		} catch (Exception e) {
+			assertThat(e.getCause(), instanceOf(SchemaValidationException.class));
+			assertThat(e.getCause().getMessage(), endsWith("value does not reference name.space1.anotherType, instance b]"));
+			ex = e;
+		}
+		assertNotNull(ex);
+	}
+
+	@Test
+	public void testValidationTypeVarWrongType() throws Exception {
+		String schema = "type elementType {\n"
+				+ "  var1 = \"type:namespace=name.space:reference=otherType\";\n"
+				+ "}\n\n"
+				+ "type <name.space> anotherType {\n"
+				+ "  var1 = \"boolean\";\n"
+				+ "}";
+		String properties = "elementType a {\n"
+				+ "  var1 = [name.space:b];\n"
+				+ "}\n\n"
+				+ "anotherType <name.space> b {\n"
+				+ "  var1 = true;\n"
+				+ "}\n";
+		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+		Exception ex = null;
+
+		try {
+			spyPropertyFile.load();
+		} catch (Exception e) {
+			assertThat(e.getCause(), instanceOf(SchemaValidationException.class));
+			assertThat(e.getCause().getMessage(), endsWith("value does not reference name.space.otherType, instance b]"));
+			ex = e;
+		}
+		assertNotNull(ex);
 	}
 
 	@Test
@@ -336,8 +450,8 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), nullValue());
-		assertThat(spyPropertyFile.get("a.var2"), instanceOf(Boolean.class));
+		assertThat(spyPropertyFile.get("a.var1", ""), nullValue());
+		assertThat(spyPropertyFile.get("a.var2", ""), instanceOf(Boolean.class));
 	}
 
 	@Test
@@ -363,6 +477,32 @@ public class PropertyFileTest {
 	}
 
 	@Test
+	public void testValidationTypeArrayVar() throws Exception {
+		String schema = "type elementType {\n"
+				+ "  var1 = { \"type:namespace=name.space:reference=anotherType\" };\n"
+				+ "}\n\n"
+				+ "type <name.space> anotherType {\n"
+				+ "  var1 = \"boolean\";\n"
+				+ "}";
+		String properties = "elementType a {\n"
+				+ "  var1 = { [name.space:b], [name.space:c] };\n"
+				+ "}\n\n"
+				+ "anotherType <name.space> b {\n"
+				+ "  var1 = true;\n"
+				+ "}\n\n"
+				+ "anotherType <name.space> c {\n"
+				+ "  var1 = false;\n"
+				+ "}\n";
+		PropertyFile spyPropertyFile = preparePropertyFile(schema, properties);
+
+		spyPropertyFile.load();
+
+		assertThat(spyPropertyFile.get("a.var1", ""), instanceOf(Object[].class));
+		assertThat(spyPropertyFile.get("a.var1[0].var1", ""), equalTo(new Boolean(true)));
+		assertThat(spyPropertyFile.get("a.var1[1].var1", ""), equalTo(new Boolean(false)));
+	}
+
+	@Test
 	public void testValidationStringArrayVar() throws Exception {
 		String schema = "type elementType {\n"
 				+ "  var1 = { \"string\" };\n"
@@ -374,7 +514,8 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.var1"), instanceOf(Object[].class));
+		assertThat(spyPropertyFile.get("a.var1", ""), instanceOf(Object[].class));
+		assertThat(spyPropertyFile.get("a.var1[0]", ""), equalTo("text"));
 	}
 
 	@Test
@@ -426,7 +567,7 @@ public class PropertyFileTest {
 
 		spyPropertyFile.load();
 
-		assertThat(spyPropertyFile.get("a.varname1.varname3[0].varname1"), instanceOf(Boolean.class));
+		assertThat(spyPropertyFile.get("a.varname1.varname3[0].varname1", ""), instanceOf(Boolean.class));
 	}
 
 	@Test

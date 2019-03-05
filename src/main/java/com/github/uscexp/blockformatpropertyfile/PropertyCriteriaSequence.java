@@ -32,8 +32,13 @@ public class PropertyCriteriaSequence implements PropertyCriteria {
 
 	@Override
 	public void extractValueToBeChecked(PropertyStruct ps) {
-		pc1.extractValueToBeChecked(ps);
-		pc2.extractValueToBeChecked(ps);
+		extractValueToBeChecked(ps, "");
+	}
+
+	@Override
+	public void extractValueToBeChecked(PropertyStruct ps, String valueNameSpace) {
+		pc1.extractValueToBeChecked(ps, valueNameSpace);
+		pc2.extractValueToBeChecked(ps, valueNameSpace);
 	}
 
 	//@formatter:off

@@ -66,7 +66,12 @@ public class PropertyCriteriaPair implements PropertyCriteria {
 
 	@Override
 	public void extractValueToBeChecked(PropertyStruct ps) {
-		valueToBeChecked = ps.get(key);
+		extractValueToBeChecked(ps, "");
+	}
+
+	@Override
+	public void extractValueToBeChecked(PropertyStruct ps, String valueNameSpace) {
+		valueToBeChecked = ps.get(key, valueNameSpace);
 	}
 
 	//@formatter:off

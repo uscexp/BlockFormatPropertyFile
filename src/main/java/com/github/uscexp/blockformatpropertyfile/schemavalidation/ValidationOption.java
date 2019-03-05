@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.Optional;
 
 public enum ValidationOption {
-	PATTERN("pattern"), LOCALE("locale"), MIN_OCCURES("minOccures"), MAX_OCCURES("maxOccures"), REFERENCE("reference");
+	PATTERN("pattern"), LOCALE("locale"), MIN_OCCURES("minOccures"), MAX_OCCURES("maxOccures"), REFERENCE("reference"), NAME_SPACE("namespace");
 
 	private String option;
 

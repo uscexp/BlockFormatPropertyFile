@@ -23,13 +23,27 @@ public class AstElementTreeNode<V> extends AstBaseCommandTreeNode<V> {
 		super.interpretAfterChilds(id);
 		IStack<Object> stack = processStore.getStack();
 		String typeName = (String) stack.pop();
-		String elementName = (String) stack.pop();
-		PropertyStruct pStruct = (PropertyStruct) stack.pop();
+		Object object1 = stack.pop();
+		Object object2 = stack.pop();
+		String nameSpace = "";
+		String elementName;
+		PropertyStruct pStruct;
+
+		if (object2 instanceof PropertyStruct) {
+			elementName = (String) object1;
+			pStruct = (PropertyStruct) object2;
+		} else {
+			nameSpace = (String) object1;
+			elementName = (String) object2;
+			pStruct = (PropertyStruct) stack.pop();
+		}
+
 		pStruct.setName(elementName);
+		pStruct.setNameSpace(nameSpace);
 		pStruct.setType(typeName);
 		PropertyFile propertyFile = (PropertyFile) processStore.getVariable(PropertyFileInterpreter.PROPERTY_FILE);
-		propertyFile.put(elementName, pStruct);
-		propertyFile.putElementByType(typeName, pStruct);
+		propertyFile.put(elementName, pStruct.getNameSpace(), pStruct);
+		propertyFile.putElementByType(nameSpace, typeName, pStruct);
 	}
 
 }

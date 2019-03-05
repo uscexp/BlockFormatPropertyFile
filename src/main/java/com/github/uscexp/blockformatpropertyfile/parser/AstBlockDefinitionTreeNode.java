@@ -28,7 +28,7 @@ public class AstBlockDefinitionTreeNode<V> extends AstBaseCommandTreeNode<V> {
 		if (key instanceof PropertyStruct) {
 			PropertyStruct struct = (PropertyStruct) key;
 			propertyStruct = getBlockPropertyStruct();
-			propertyStruct.put(struct.getName(), struct);
+			propertyStruct.put(struct.getName(), struct.getNameSpace(), struct);
 		} else {
 			Object val = null;
 			if (!stack.isEmpty()) {
@@ -36,7 +36,7 @@ public class AstBlockDefinitionTreeNode<V> extends AstBaseCommandTreeNode<V> {
 			}
 
 			propertyStruct = getBlockPropertyStruct();
-			propertyStruct.put((String) key, val);
+			propertyStruct.put((String) key, "", val);
 		}
 	}
 

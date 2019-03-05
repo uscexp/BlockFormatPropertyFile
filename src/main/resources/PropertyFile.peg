@@ -1,5 +1,6 @@
 Properties <- S Element+ EOI
-Element <- TypeName ElementName Block S
+Element <- TypeName NameSpace? ElementName Block S
+NameSpace <- ANGLEOPEN IDENTIFIER ('.' IDENTIFIER)* ANGLECLOSE S
 TypeName <- IDENTIFIER S
 ElementName <- IDENTIFIER S
 Block <- CURLYOPEN BlockDefinition+ CURLYCLOSE
@@ -59,7 +60,7 @@ ANGLECLOSE <- '>' S
 EQUALS <- '=' S
 BooleanLiteral <- TRUE / FALSE
 CharLiteral <- Quote Character Quote S
-TypeLiteral <- SQUAREOPEN IDENTIFIER SQUARECLOSE S
+TypeLiteral <- SQUAREOPEN (IDENTIFIER ('.' IDENTIFIER)* ':')? IDENTIFIER SQUARECLOSE S
 Date <- (!ANGLEOPEN !ANGLECLOSE Character)*
 DateLiteral <- ANGLEOPEN Date ANGLECLOSE S
 Str <- (!DoubleQuote Character)*

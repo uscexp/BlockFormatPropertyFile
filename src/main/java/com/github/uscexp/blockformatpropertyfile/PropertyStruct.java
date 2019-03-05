@@ -24,8 +24,7 @@ import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
  *  varname4 = {true, false, true}; // Array of Booleans
  *  varname5 = {1, 2, 4, 3}; // Array of Longs
  *  varname6 = {"bla bla", "geht das so", "und mit" }; // Array of Strings
- * }</code>
- * <code>
+ * }</code> <code>
  * Example access to the values:<br>
  * PropertyStruct ps = ...;
  * ...
@@ -36,13 +35,11 @@ import com.github.uscexp.dotnotation.exception.AttributeAccessExeption;
  *
  * <p>
  *
- * @author  haui
+ * @author haui
  */
 public class PropertyStruct implements Serializable {
 
 	private static final long serialVersionUID = -2242436413182329888L;
-
-	protected DotNotationAccessor dotNotationAccessor = new DotNotationAccessor();
 
 	/** map which contains the values of the struct. */
 	protected Map<String, Object> valueMap;
@@ -50,21 +47,28 @@ public class PropertyStruct implements Serializable {
 	/** name of the struct. */
 	protected String name;
 
+	protected String nameSpace;
+
 	/** type of the struct. */
 	protected String type;
 
 	public PropertyStruct() {
-		this(null, null);
+		this(null, "", null);
 	}
 
-	public PropertyStruct(String type, String name) {
+	public PropertyStruct(String type, String nameSpace, String name) {
 		super();
 		this.type = type;
+		this.nameSpace = nameSpace;
 		this.name = name;
 		valueMap = new HashMap<>();
 	}
 
-	public Map<String, Object> getValueMap() {
+	//	public Map<String, Object> getValueMap() {
+	//		return valueMap;
+	//	}
+
+	public Map<String, Object> getValueMap(String nameSpace) {
 		return valueMap;
 	}
 
@@ -84,17 +88,30 @@ public class PropertyStruct implements Serializable {
 		this.name = name;
 	}
 
-	public void put(String key, Object value) {
+	public String getNameSpace() {
+		return nameSpace;
+	}
+
+	public void setNameSpace(String nameSpace) {
+		if (nameSpace == null) {
+			nameSpace = "";
+		}
+		this.nameSpace = nameSpace;
+	}
+
+	public void put(String key, String valueNameSpace, Object value) {
 		try {
+			DotNotationAccessor dotNotationAccessor = new DotNotationAccessor(valueNameSpace);
 			dotNotationAccessor.setAttribute(this, key, value);
 		} catch (AttributeAccessExeption e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public Object get(String key) {
+	public Object get(String key, String valueNameSpace) {
 		Object result = null;
 		try {
+			DotNotationAccessor dotNotationAccessor = new DotNotationAccessor(valueNameSpace);
 			result = dotNotationAccessor.getAttribute(this, key);
 		} catch (AttributeAccessExeption e) {
 			throw new RuntimeException(e);
@@ -102,19 +119,24 @@ public class PropertyStruct implements Serializable {
 		return result;
 	}
 
-	public Object[] arrayValue(String key) {
-		Object[] result = (Object[]) get(key);
+	public Object[] arrayValue(String key, String valueNameSpace) {
+		Object[] result = (Object[]) get(key, valueNameSpace);
 		return result;
+	}
+
+	public boolean booleanValue(String key) {
+		return booleanValue(key, "");
 	}
 
 	/**
 	 * gets a boolean value.
 	 *
-	 * @param  key  key (variable path) of the value
-	 * @return  boolean value
+	 * @param key
+	 *            key (variable path) of the value
+	 * @return boolean value
 	 */
-	public boolean booleanValue(String key) {
-		Object obj = get(key);
+	public boolean booleanValue(String key, String valueNameSpace) {
+		Object obj = get(key, valueNameSpace);
 		boolean bl = false;
 
 		if (obj instanceof Boolean) {
@@ -124,15 +146,15 @@ public class PropertyStruct implements Serializable {
 			bl = (l > 0);
 		} else if (obj instanceof Double) {
 			double d = ((Double) obj).doubleValue();
-			bl = !(d == (double) 0.0);
+			bl = !(d == 0.0);
 		} else if (obj instanceof String) {
 			String str = (String) obj;
 
-			if (str.equalsIgnoreCase("true"))
+			if (str.equalsIgnoreCase("true")) {
 				bl = true;
-			else if (str.equalsIgnoreCase("false"))
+			} else if (str.equalsIgnoreCase("false")) {
 				bl = false;
-			else {
+			} else {
 				long i = Long.parseLong((String) obj);
 				bl = (i > 0);
 			}
@@ -140,21 +162,27 @@ public class PropertyStruct implements Serializable {
 		return bl;
 	}
 
-	/**
-	 * gets an int value. Attention: The value is only a down cast of a long value!
-	 *
-	 * @param  key  key (variable path) of the value
-	 * @return  int value
-	 */
 	public int intValue(String key) {
-		Object obj = get(key);
+		return intValue(key, "");
+	}
+
+	/**
+	 * gets an int value. Attention: The value is only a down cast of a long
+	 * value!
+	 *
+	 * @param key
+	 *            key (variable path) of the value
+	 * @return int value
+	 */
+	public int intValue(String key, String valueNameSpace) {
+		Object obj = get(key, valueNameSpace);
 		int i = 0;
 
-		if (obj instanceof Long)
+		if (obj instanceof Long) {
 			i = ((Long) obj).intValue();
-		else if (obj instanceof Integer)
+		} else if (obj instanceof Integer) {
 			i = ((Integer) obj).intValue();
-		else if (obj instanceof Boolean) {
+		} else if (obj instanceof Boolean) {
 			boolean bl = ((Boolean) obj).booleanValue();
 			i = bl ? 1 : 0;
 		} else if (obj instanceof Double) {
@@ -166,21 +194,26 @@ public class PropertyStruct implements Serializable {
 		return i;
 	}
 
+	public long longValue(String key) {
+		return longValue(key, "");
+	}
+
 	/**
 	 * gets a long value.
 	 *
-	 * @param  key  key (variable path) of the value
-	 * @return  long value
+	 * @param key
+	 *            key (variable path) of the value
+	 * @return long value
 	 */
-	public long longValue(String key) {
-		Object obj = get(key);
+	public long longValue(String key, String valueNameSpace) {
+		Object obj = get(key, valueNameSpace);
 		long l = 0;
 
-		if (obj instanceof Long)
+		if (obj instanceof Long) {
 			l = ((Long) obj).longValue();
-		else if (obj instanceof Integer)
+		} else if (obj instanceof Integer) {
 			l = ((Integer) obj).longValue();
-		else if (obj instanceof Boolean) {
+		} else if (obj instanceof Boolean) {
 			boolean bl = ((Boolean) obj).booleanValue();
 			l = bl ? 1 : 0;
 		} else if (obj instanceof Double) {
@@ -192,15 +225,20 @@ public class PropertyStruct implements Serializable {
 		return l;
 	}
 
+	public double doubleValue(String key) {
+		return doubleValue(key, "");
+	}
+
 	/**
 	 * gets a double value.
 	 *
-	 * @param  key  key (variable path) of the value
-	 * @return  double value
+	 * @param key
+	 *            key (variable path) of the value
+	 * @return double value
 	 */
-	public double doubleValue(String key) {
-		Object obj = get(key);
-		double d = (double) 0.0;
+	public double doubleValue(String key, String valueNameSpace) {
+		Object obj = get(key, valueNameSpace);
+		double d = 0.0;
 
 		if (obj instanceof Double) {
 			d = ((Double) obj).doubleValue();
@@ -208,7 +246,7 @@ public class PropertyStruct implements Serializable {
 			d = ((Float) obj).doubleValue();
 		} else if (obj instanceof Boolean) {
 			boolean bl = ((Boolean) obj).booleanValue();
-			d = (double) (bl ? 1.0 : 0.0);
+			d = bl ? 1.0 : 0.0;
 		} else if (obj instanceof Long) {
 			Long l = (Long) obj;
 			d = l.doubleValue();
@@ -218,14 +256,20 @@ public class PropertyStruct implements Serializable {
 		return d;
 	}
 
-	/**
-	 * gets a float value. Attention: The value is only a down cast of a double value!
-	 *
-	 * @param  key  key (variable path) of the value
-	 * @return  float value
-	 */
 	public float floatValue(String key) {
-		Object obj = get(key);
+		return floatValue(key, "");
+	}
+
+	/**
+	 * gets a float value. Attention: The value is only a down cast of a double
+	 * value!
+	 *
+	 * @param key
+	 *            key (variable path) of the value
+	 * @return float value
+	 */
+	public float floatValue(String key, String valueNameSpace) {
+		Object obj = get(key, valueNameSpace);
 		float f = (float) 0.0;
 
 		if (obj instanceof Double) {
@@ -244,16 +288,22 @@ public class PropertyStruct implements Serializable {
 		return f;
 	}
 
+	public String stringValue(String key) {
+		return stringValue(key, "");
+	}
+
 	/**
 	 * gets a string value.
 	 *
-	 * @param  key  key (variable path) of the value
-	 * @return  string value
+	 * @param key
+	 *            key (variable path) of the value
+	 * @return string value
 	 */
-	public String stringValue(String key) {
-		Object obj = get(key);
-		if (obj == null)
+	public String stringValue(String key, String valueNameSpace) {
+		Object obj = get(key, valueNameSpace);
+		if (obj == null) {
 			return null;
+		}
 		return obj.toString();
 	}
 
@@ -274,28 +324,37 @@ public class PropertyStruct implements Serializable {
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj)
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
+		}
 		PropertyStruct other = (PropertyStruct) obj;
 		if (name == null) {
-			if (other.name != null)
+			if (other.name != null) {
 				return false;
-		} else if (!name.equals(other.name))
+			}
+		} else if (!name.equals(other.name)) {
 			return false;
+		}
 		if (type == null) {
-			if (other.type != null)
+			if (other.type != null) {
 				return false;
-		} else if (!type.equals(other.type))
+			}
+		} else if (!type.equals(other.type)) {
 			return false;
+		}
 		if (valueMap == null) {
-			if (other.valueMap != null)
+			if (other.valueMap != null) {
 				return false;
-		} else if (!valueMap.equals(other.valueMap))
+			}
+		} else if (!valueMap.equals(other.valueMap)) {
 			return false;
+		}
 		return true;
 	}
 

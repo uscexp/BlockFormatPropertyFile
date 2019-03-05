@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import com.github.uscexp.blockformatpropertyfile.PropertyFile;
 import com.github.uscexp.blockformatpropertyfile.PropertyStruct;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
@@ -20,11 +21,13 @@ import com.google.common.collect.Sets.SetView;
 
 public class PropertyFileValidation {
 
+	private Map<String, Map<String, Object>> nameSpaceValueMap;
 	private Map<String, PropertyStruct> schemaMap;
 	private ListMultimap<String, PropertyStruct> typesMap;
 	private ListMultimap<LogLevel, String> errors;
 
-	public PropertyFileValidation(Map<String, PropertyStruct> schemaMap, ListMultimap<String, PropertyStruct> typesMap) {
+	public PropertyFileValidation(Map<String, Map<String, Object>> nameSpaceValueMap, Map<String, PropertyStruct> schemaMap, ListMultimap<String, PropertyStruct> typesMap) {
+		this.nameSpaceValueMap = nameSpaceValueMap;
 		this.schemaMap = schemaMap;
 		this.typesMap = typesMap;
 		errors = ArrayListMultimap.create();
@@ -56,7 +59,7 @@ public class PropertyFileValidation {
 	}
 
 	private void validateSchema(String path, PropertyStruct propertyStruct) {
-		Set<Entry<String, Object>> entrySet = propertyStruct.getValueMap().entrySet();
+		Set<Entry<String, Object>> entrySet = propertyStruct.getValueMap(propertyStruct.getNameSpace()).entrySet();
 
 		entrySet.forEach(es -> validateSchema(path != null ? path + "." + es.getKey() : es.getKey(), es.getKey(), es.getValue()));
 	}
@@ -90,9 +93,17 @@ public class PropertyFileValidation {
 	}
 
 	private void validate(String path, PropertyStruct schemaStruct, PropertyStruct propertyStruct) {
-		Set<Entry<String, Object>> entrySet = schemaStruct.getValueMap().entrySet();
+		Set<Entry<String, Object>> entrySet = schemaStruct.getValueMap(schemaStruct.getNameSpace()).entrySet();
 
-		entrySet.forEach(es -> validate(path != null ? path + "." + es.getKey() : es.getKey(), es.getKey(), es.getValue(), propertyStruct.get(es.getKey())));
+		entrySet.forEach(es -> {
+			Object value = es.getValue();
+			String valueNameSpace = "";
+			if (value instanceof PropertyStruct) {
+				PropertyStruct valuePropertyStruct = (PropertyStruct) value;
+				valueNameSpace = valuePropertyStruct.getNameSpace();
+			}
+			validate(path != null ? path + "." + es.getKey() : es.getKey(), es.getKey(), es.getValue(), propertyStruct.get(es.getKey(), valueNameSpace));
+		});
 	}
 
 	private void validate(String path, String key, Object schemaValue, Object value) {
@@ -126,7 +137,12 @@ public class PropertyFileValidation {
 				errors.put(LogLevel.Error, String.format("%s = %s; value has wrong type, it must be a %s", path, value, validationStruct.type.getTypeName()));
 			}
 			if (!validationStruct.matches(value)) {
-				errors.put(LogLevel.Error, String.format("%s = %s; value does not match pattern %s", path, value, validationStruct.pattern));
+				if (value instanceof Reference) {
+					errors.put(LogLevel.Error, String.format("%s = %s; value does not reference %s%s, instance %s", path, value,
+							validationStruct.nameSpace == null ? "" : validationStruct.nameSpace + ".", validationStruct.reference, ((Reference) value).getElementName()));
+				} else {
+					errors.put(LogLevel.Error, String.format("%s = %s; value does not match pattern %s", path, value, validationStruct.pattern));
+				}
 			}
 		}
 	}
@@ -135,6 +151,7 @@ public class PropertyFileValidation {
 		public boolean optional;
 		public PropertyType type;
 		public String reference = null;
+		public String nameSpace = null;
 		public String pattern = null;
 		public String locale = null;
 		public Pattern regExPattern = null;
@@ -165,6 +182,10 @@ public class PropertyFileValidation {
 					this.reference = ref.get();
 				} else {
 					errors.put(LogLevel.Error, String.format("Option '%s' is mandatory for type '%s'", ValidationOption.REFERENCE.getOption(), PropertyType.TYPE.getTypeName()));
+				}
+				Optional<String> ns = ValidationOption.NAME_SPACE.getOption(split);
+				if (ns.isPresent()) {
+					this.nameSpace = ns.get();
 				}
 			} else {
 				if (pattern.isPresent()) {
@@ -211,7 +232,21 @@ public class PropertyFileValidation {
 			} else if (reference != null) {
 				if (value instanceof Reference) {
 					if (reference != null) {
-						result = schemaMap.get(reference) != null;
+						try {
+							Map<String, Object> nsValueMap;
+							if (nameSpace != null && !nameSpace.isEmpty()) {
+								nsValueMap = nameSpaceValueMap.get(nameSpace);
+							} else {
+								nsValueMap = nameSpaceValueMap.get(PropertyFile.ROOT);
+							}
+							PropertyStruct propertyStruct = (PropertyStruct) nsValueMap.get(((Reference) value).getElementName());
+							if (propertyStruct != null && nameSpace != null) {
+								result = nameSpace.equals(propertyStruct.getNameSpace());
+							}
+							result = result && propertyStruct != null ? propertyStruct.getType().equals(reference) : false;
+						} catch (Exception e) {
+							result = false;
+						}
 					}
 				}
 			}

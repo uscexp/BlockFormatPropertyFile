@@ -62,7 +62,7 @@ public class PropertyFileParser
 
 	@AstCommand
 	public Rule typeLiteral() {
-		return Sequence(SQUAREOPEN(), IDENTIFIER(), SQUARECLOSE(), S());
+		return Sequence(SQUAREOPEN(), Optional(Sequence(IDENTIFIER(), ZeroOrMore(Ch('.'), IDENTIFIER()), Ch(':'))), IDENTIFIER(), SQUARECLOSE(), S());
 	}
 
 	public Rule charLiteral() {
@@ -237,8 +237,13 @@ public class PropertyFileParser
 	}
 
 	@AstCommand
+	public Rule nameSpace() {
+		return Sequence(ANGLEOPEN(), IDENTIFIER(), ZeroOrMore(Ch('.'), IDENTIFIER()), ANGLECLOSE(), S());
+	}
+
+	@AstCommand
 	public Rule element() {
-		return Sequence(typeName(), elementName(), block(), S());
+		return Sequence(typeName(), Optional(nameSpace()), elementName(), block(), S());
 	}
 
 	public Rule properties() {

@@ -14,9 +14,18 @@ import com.github.uscexp.dotnotation.ArrayType;
 import com.github.uscexp.dotnotation.AttributeDetail;
 
 /**
- * @author  haui
+ * @author haui
  */
 public class DotNotationAccessor extends com.github.uscexp.dotnotation.DotNotationAccessor {
+
+	private String acccessNameSpace;
+
+	public DotNotationAccessor(String acccessNameSpace) {
+		if (acccessNameSpace == null) {
+			acccessNameSpace = "";
+		}
+		this.acccessNameSpace = acccessNameSpace;
+	}
 
 	private ArrayType getArrayType(Object element) {
 		ArrayType result = null;
@@ -36,27 +45,28 @@ public class DotNotationAccessor extends com.github.uscexp.dotnotation.DotNotati
 
 	@Override
 	protected Object getAttributeValueInElement(Object element, AttributeDetail attribute)
-		throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		PropertyStruct propertyStruct = (PropertyStruct) element;
-		Object result = propertyStruct.getValueMap().get(attribute.getName());
+		Map<String, Object> valueMap = propertyStruct.getValueMap(acccessNameSpace);
+		Object result = valueMap.get(attribute.getName());
 		if ((attribute.isArrayType() || attribute.isMapType()) && (attribute.getIndex() != -1)) {
 			ArrayType arrayType = getArrayType(result);
 
 			switch (arrayType) {
-				case ARRAY:
-					result = Array.get(result, attribute.getIndex());
-					break;
+			case ARRAY:
+				result = Array.get(result, attribute.getIndex());
+				break;
 
-				case COLLECTION:
-					break;
+			case COLLECTION:
+				break;
 
-				case MAP:
-					break;
+			case MAP:
+				break;
 
-				case NONE:
-					break;
-				default:
-					break;
+			case NONE:
+				break;
+			default:
+				break;
 			}
 		} else if (attribute.isMapType() && (attribute.getMapKey() != null)) {
 			result = ((Map<?, ?>) result).get(attribute.getMapKey());
@@ -66,32 +76,33 @@ public class DotNotationAccessor extends com.github.uscexp.dotnotation.DotNotati
 
 	@Override
 	protected void setAttributeValueInElement(Object element, AttributeDetail attribute, Object value)
-		throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
+			throws IntrospectionException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, InstantiationException {
 		PropertyStruct propertyStruct = (PropertyStruct) element;
+		Map<String, Object> valueMap = propertyStruct.getValueMap(acccessNameSpace);
 		if (attribute.isArrayType() || attribute.isMapType()) {
-			Object result = propertyStruct.getValueMap().get(attribute.getName());
+			Object result = valueMap.get(attribute.getName());
 
 			ArrayType arrayType = getArrayType(result);
 
 			switch (arrayType) {
-				case ARRAY:
-					result = setValueInArray(result, attribute, value);
-					break;
+			case ARRAY:
+				result = setValueInArray(result, attribute, value);
+				break;
 
-				case COLLECTION:
-					break;
+			case COLLECTION:
+				break;
 
-				case MAP:
-					break;
+			case MAP:
+				break;
 
-				case NONE:
-					break;
-				default:
-					break;
+			case NONE:
+				break;
+			default:
+				break;
 			}
-			propertyStruct.getValueMap().put(attribute.getName(), result);
+			valueMap.put(attribute.getName(), result);
 		} else if (!attribute.isArrayType() && !attribute.isMapType()) {
-			propertyStruct.getValueMap().put(attribute.getName(), value);
+			valueMap.put(attribute.getName(), value);
 		}
 	}
 

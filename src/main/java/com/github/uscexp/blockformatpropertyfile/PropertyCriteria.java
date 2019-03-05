@@ -8,7 +8,9 @@ package com.github.uscexp.blockformatpropertyfile;
  */
 public interface PropertyCriteria {
 
-	public void extractValueToBeChecked(PropertyStruct ps);
+	void extractValueToBeChecked(PropertyStruct ps);
+
+	void extractValueToBeChecked(PropertyStruct ps, String valueNameSpace);
 
 	//@formatter:off
 	/**
@@ -26,6 +28,6 @@ public interface PropertyCriteria {
 	 *
 	 * @return true if contition is true
 	 */
-	public boolean compare();
+	boolean compare();
 	//@formatter:on
 }
